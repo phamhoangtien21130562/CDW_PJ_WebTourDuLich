@@ -107,8 +107,7 @@ const EntertainmentTickets: React.FC = () => {
         </Row>
       </Container>
 
-      {/* Footer */}
-      <Footer />
+     
     </div>
   );
 };

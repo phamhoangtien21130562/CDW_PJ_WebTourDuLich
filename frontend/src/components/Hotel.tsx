@@ -8,7 +8,7 @@ import '../assets/css/hotel.css';
 const hotels = [
   {
     id: 1,
-    image: 'https://via.placeholder.com/300x200',
+    image: 'https://cdn1.ivivu.com/iVivu/2018/09/05/17/khach-san-flc-luxury-quy-nhon.webp?o=jpg',
     name: 'Khách sạn FLC Luxury Quy Nhơn',
     rating: 9.2,
     reviews: 946,
@@ -19,7 +19,7 @@ const hotels = [
   },
   {
     id: 2,
-    image: 'https://via.placeholder.com/300x200',
+    image: 'https://cdn1.ivivu.com/iVivu/2018/09/05/17/khach-san-flc-luxury-quy-nhon.webp?o=jpg',
     name: 'Khu nghỉ dưỡng ANGSANA Lăng Cô Huế',
     rating: 9.8,
     reviews: 177,
@@ -100,12 +100,13 @@ function Hotels() {
               <option value="2-adults-1-child">2 người lớn, 1 trẻ em</option>
             </select>
           </div>
+          <button className="btn btn-warning" id="search-button">
+          Tìm kiếm
+        </button>
         </div>
 
         {/* Nút tìm kiếm */}
-        <button className="btn btn-warning" id="search-button">
-          Tìm
-        </button>
+        
       </div>
 
       {/* Danh sách khách sạn */}

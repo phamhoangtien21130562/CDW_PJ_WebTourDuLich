@@ -23,7 +23,11 @@ function Index() {
   const [provinces, setProvinces] = useState<Province[]>([]);
   // State cho tỉnh được chọn
   const [selectedProvince, setSelectedProvince] = useState<string>('');
+  const [guestSelection, setGuestSelection] = useState<string>('2 người lớn, 0 trẻ em'); // State để lưu giá trị được chọn
 
+  const handleGuestChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setGuestSelection(e.target.value);
+  };
   // Định nghĩa backgroundImages với các key cụ thể
   const backgroundImages: {
     tours: string;
@@ -121,21 +125,29 @@ function Index() {
                       <Col xs={12} md={12}>
                         <FormControl placeholder="Bạn muốn đi đâu?" className="rounded-0" />
                       </Col>
-                      <Col xs={6} md={2}>
+                      <Col xs={6} md={4}>
                         <FormControl type="date" placeholder="Thứ tư" className="rounded-0" />
                       </Col>
-                      <Col xs={6} md={2}>
+                      <Col xs={6} md={4}>
                         <FormControl type="date" placeholder="Thứ năm" className="rounded-0" />
                       </Col>
-                      <Col xs={12} md={2}>
-                        <FormControl
-                          placeholder="2 người lớn, 0 trẻ em"
-                          className="rounded-0"
-                        />
-                      </Col>
-                      <Col xs={12} md={2}>
-                        <FormControl placeholder="1 phòng" className="rounded-0" />
-                      </Col>
+                      <Col xs={12} md={4}>
+      <Form.Select
+        className="rounded-0 start"
+        value={guestSelection}
+        onChange={handleGuestChange}
+        aria-label="Số lượng người lớn và trẻ em"
+      >
+        <option value="1 người lớn, 0 trẻ em">1 người lớn, 0 trẻ em</option>
+        <option value="2 người lớn, 0 trẻ em">2 người lớn, 0 trẻ em</option>
+        <option value="2 người lớn, 1 trẻ em">2 người lớn, 1 trẻ em</option>
+        <option value="2 người lớn, 2 trẻ em">2 người lớn, 2 trẻ em</option>
+        <option value="3 người lớn, 0 trẻ em">3 người lớn, 0 trẻ em</option>
+        <option value="3 người lớn, 1 trẻ em">3 người lớn, 1 trẻ em</option>
+        {/* Thêm các tùy chọn khác nếu cần */}
+      </Form.Select>
+    </Col>
+                   
                       <Col xs={12} md={2}>
                         <Button variant="warning" className="w-100 rounded-0">
                           Tìm
@@ -161,7 +173,7 @@ function Index() {
                       <Form.Select
                         value={selectedProvince}
                         onChange={(e) => setSelectedProvince(e.target.value)}
-                        className="rounded-0"
+                        className="rounded-0 start"
                       >
                         <option value="">Khởi hành từ</option>
                         {provinces.map((province) => (
