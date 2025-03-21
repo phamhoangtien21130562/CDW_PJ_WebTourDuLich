@@ -1,6 +1,28 @@
 .search-bar {
     border: 1px solid #ddd;
   }
+  /* Giới hạn số dòng của description */
+.hotel-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Giới hạn 3 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Thêm dấu "..." khi vượt quá */
+  line-height: 1.5; /* Điều chỉnh khoảng cách dòng */
+  max-height: calc(1.5em * 3); /* Đảm bảo chiều cao tối đa là 3 dòng */
+  margin-bottom: 10px;
+}
+
+.hotel-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* Giới hạn 3 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Thêm dấu "..." khi vượt quá */
+  line-height: 1.5; /* Điều chỉnh khoảng cách dòng */
+  max-height: calc(1.5em * 3); /* Đảm bảo chiều cao tối đa là 3 dòng */
+ 
+}
   .review-card h5 {
     font-size: 1.1rem;
     color: #333;

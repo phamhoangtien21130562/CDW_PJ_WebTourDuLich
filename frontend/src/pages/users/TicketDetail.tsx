@@ -125,7 +125,7 @@ const TicketDetail: React.FC = () => {
           </Col>
           <Col md={4}>
             <Card className="p-3 shadow-sm">
-              <h4 className="text-danger">{ticketData.price}</h4>
+              <h4 className="text-danger">{ticketData.price} /1 người</h4>
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>Ngày sử dụng</Form.Label>

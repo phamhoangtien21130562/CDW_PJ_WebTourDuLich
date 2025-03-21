@@ -1,6 +1,9 @@
 .App {
   font-family: Arial, sans-serif;
 }
+select.rounded-0.start.form-select {
+    margin-top: -11px;
+}
 /* Highlight Section */
 .highlight-section {
   padding: 40px 0;

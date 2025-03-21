@@ -16,33 +16,23 @@
     color: #007bff;
   }
   
-  /* Đảm bảo tất cả input có cùng chiều rộng */
-  .input-field {
-    width: 100% !important;
-    box-sizing: border-box;
-    border-radius: 4px;
-    border: 1px solid #ced4da;
-  }
-  
+ 
+  span#checkout-icon {
+    height: 42px;
+}
+span#location-icon {
+    height: 42px;
+}
+span#checkin-icon {
+    height: 42px;
+}
   /* Tùy chỉnh InputGroup để có cùng chiều rộng với input khác */
   .input-group-custom {
     display: flex;
     width: 100% !important;
     box-sizing: border-box;
   }
-  
-  .input-group-custom .form-control {
-    flex: 1; /* Input chiếm toàn bộ không gian còn lại */
-    border-right: none; /* Loại bỏ viền phải để liền mạch với icon */
-    border-radius: 4px 0 0 4px; /* Bo góc trái */
-  }
-  
-  .input-group-custom .input-group-text {
-    background-color: #fff;
-    border: 1px solid #ced4da;
-    border-left: none; /* Loại bỏ viền trái để liền mạch với input */
-    border-radius: 0 4px 4px 0; /* Bo góc phải */
-  }
+
   
   .form-label {
     font-size: 0.9rem;

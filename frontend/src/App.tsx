@@ -7,10 +7,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Im
 import Index from './pages/users/Home';
 import HotelDetail from './pages/users/HotelDetail';
 import TourDetail from './pages/users/TourDetail';
-import LoginForm from './Form/LoginForm';
-import RegisterForm from './Form/Register';
+import LoginForm from './form/LoginForm';
+import RegisterForm from './form/Register';
 import TicketDetail from './pages/users/TicketDetail';
-import ForgotPassword from './Form/ForgotPassword';
+import ForgotPassword from './form/ForgotPassword';
+import Profile from './pages/users/Profile';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/register" element={<RegisterForm/>} />
         <Route path="/ticket-detail" element={<TicketDetail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/profile" element={<Profile/>} />
       </Routes>
     </Router>
   );
