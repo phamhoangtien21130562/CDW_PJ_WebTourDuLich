@@ -1,42 +1,132 @@
-#root {
-  max-width: 1280px;
+.App {
+  font-family: Arial, sans-serif;
+}
+/* Highlight Section */
+.highlight-section {
+  padding: 40px 0;
+}
+/* Sticky Header */
+.button-tall {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+/* Ensure the page takes up at least the full viewport height */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.d-flex.flex-column.min-vh-100 {
+  min-height: 100vh;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+/* Footer styling */
+.footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  padding: 2rem 0;
+}
+
+.footer h6 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.footer ul.list-unstyled li {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.footer ul.list-unstyled li:hover {
+  color: #007bff;
+  cursor: pointer;
+}
+
+.footer .text-md-end {
+  font-size: 0.9rem;
+}
+
+.footer .text-muted {
+  font-size: 0.85rem;
+}
+.highlight-icon {
+  font-size: 2.5rem;
+  color: #007bff; /* Màu xanh giống trong hình */
+  margin-bottom: 10px;
+}
+
+.highlight-section h5 {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.highlight-section p {
+  color: #6c757d; /* Màu xám cho mô tả */
+  margin-bottom: 0;
+}
+
+/* Responsive Adjustments for Highlight Section */
+@media (max-width: 768px) {
+  .highlight-section .col-md-4 {
+    margin-bottom: 30px;
+  }
+}
+/* Deal Badge */
+.deal-badge {
+  background-color: #ff4d4f;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+/* Search Form */
+.search-form {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Tour Card */
+.tour-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  top: -50px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    height: 90vh;
   }
-  to {
-    transform: rotate(360deg);
+
+  .hero-section h1 {
+    font-size: 1.5rem;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  .hero-section p {
+    font-size: 0.9rem;
   }
-}
 
-.card {
-  padding: 2em;
-}
+  .search-form {
+    padding: 10px;
+  }
 
-.read-the-docs {
-  color: #888;
+  .tour-card {
+    top: -20px;
+  }
 }

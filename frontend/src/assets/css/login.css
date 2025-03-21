@@ -1,0 +1,97 @@
+/* assets/css/login.css */
+
+/* Tùy chỉnh form đăng nhập */
+.login-form-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .login-form-container h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #007bff;
+  }
+  
+  /* Đảm bảo tất cả input có cùng chiều rộng */
+  .input-field {
+    width: 100% !important;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+  }
+  
+  /* Tùy chỉnh InputGroup để có cùng chiều rộng với input khác */
+  .input-group-custom {
+    display: flex;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+  
+  .input-group-custom .form-control {
+    flex: 1; /* Input chiếm toàn bộ không gian còn lại */
+    border-right: none; /* Loại bỏ viền phải để liền mạch với icon */
+    border-radius: 4px 0 0 4px; /* Bo góc trái */
+  }
+  
+  .input-group-custom .input-group-text {
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-left: none; /* Loại bỏ viền trái để liền mạch với input */
+    border-radius: 0 4px 4px 0; /* Bo góc phải */
+  }
+  
+  .form-label {
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  .btn-warning {
+    background-color: #f5a623;
+    border: none;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .btn-warning:hover {
+    background-color: #e69520;
+  }
+  
+  .btn-outline-primary {
+    border-color: #3b5998;
+    color: #3b5998;
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: #3b5998;
+    color: white;
+  }
+  
+  .btn-outline-danger {
+    border-color: #db4437;
+    color: #db4437;
+  }
+  
+  .btn-outline-danger:hover {
+    background-color: #db4437;
+    color: white;
+  }
+  
+  .w-48 {
+    width: 48% !important;
+  }
+  
+  .text-primary {
+    color: #007bff !important;
+  }
+  
+  hr {
+    border-top: 1px solid #dee2e6;
+  }
+  
+  .text-muted {
+    font-size: 0.9rem;
+  }
