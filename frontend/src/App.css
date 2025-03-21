@@ -1,0 +1,81 @@
+.App {
+  font-family: Arial, sans-serif;
+}
+/* Highlight Section */
+.highlight-section {
+  padding: 40px 0;
+}
+
+.highlight-icon {
+  font-size: 2.5rem;
+  color: #007bff; /* Màu xanh giống trong hình */
+  margin-bottom: 10px;
+}
+
+.highlight-section h5 {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.highlight-section p {
+  color: #6c757d; /* Màu xám cho mô tả */
+  margin-bottom: 0;
+}
+
+/* Responsive Adjustments for Highlight Section */
+@media (max-width: 768px) {
+  .highlight-section .col-md-4 {
+    margin-bottom: 30px;
+  }
+}
+/* Deal Badge */
+.deal-badge {
+  background-color: #ff4d4f;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+/* Search Form */
+.search-form {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Tour Card */
+.tour-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  top: -50px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    height: 90vh;
+  }
+
+  .hero-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero-section p {
+    font-size: 0.9rem;
+  }
+
+  .search-form {
+    padding: 10px;
+  }
+
+  .tour-card {
+    top: -20px;
+  }
+}
