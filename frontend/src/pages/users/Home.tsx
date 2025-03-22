@@ -7,6 +7,7 @@ import Footer from '../../components/Footer';
 import Tour from '../../components/Tour';
 import EntertainmentTickets from './EntertainmentTickets';
 
+
 // Định nghĩa interface cho Province
 interface Province {
   id: string | number;
@@ -244,6 +245,7 @@ function Index() {
       ) : null}
 
       <Footer />
+ 
     </div>
   );
 }
