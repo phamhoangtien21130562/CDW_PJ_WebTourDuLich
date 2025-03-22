@@ -12,7 +12,7 @@ import RegisterForm from './form/Register';
 import TicketDetail from './pages/users/TicketDetail';
 import ForgotPassword from './form/ForgotPassword';
 import Profile from './pages/users/Profile';
-
+import AdminRouter from "./router/AdminRouter";
 
 function App() {
   return (
@@ -28,6 +28,8 @@ function App() {
         <Route path="/ticket-detail" element={<TicketDetail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/profile" element={<Profile/>} />
+      {/*  Admin*/}
+        <Route path="/admin/*" element={<AdminRouter />} />
       </Routes>
     </Router>
   );

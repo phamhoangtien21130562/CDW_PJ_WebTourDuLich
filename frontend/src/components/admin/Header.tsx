@@ -7,7 +7,7 @@ import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 
 import { Link } from "react-router-dom";
-import "../App.css";
+
 
 const Header: React.FC = () => {
     return (
