@@ -13,7 +13,8 @@ import TicketDetail from './pages/users/TicketDetail';
 import ForgotPassword from './form/ForgotPassword';
 import Profile from './pages/users/Profile';
 import AdminRouter from "./router/AdminRouter";
-
+import React from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
   return (
     <Router>

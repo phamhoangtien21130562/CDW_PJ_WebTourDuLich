@@ -1,18 +1,22 @@
 import { Routes, Route } from "react-router-dom";
-import Dashboard from "../pages/admin/dashboard/index";
-import Orders from "../pages/admin/orders";
-import Tours from "../pages/admin/tours";
-import Users from "../pages/admin/users";
+import AdminLayout from "../layouts/AdminLayout.tsx";
+import Dashboard from "../pages/admin/dashboard/index.tsx";
+import Users from "../pages/admin/users/index.tsx";
+import Orders from "../pages/admin/orders/index.tsx";
+import Tours from "../pages/admin/tours/index.tsx";
+import React from "react";
 
-function AdminRouter() {
+const AdminRouter = () => {
     return (
         <Routes>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="tours" element={<Tours />} />
-            <Route path="users" element={<Users />} />
+            <Route path="/" element={<AdminLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="users" element={<Users />} />
+                <Route path="orders" element={<Orders />} />
+                <Route path="tours" element={<Tours />} />
+            </Route>
         </Routes>
     );
-}
+};
 
 export default AdminRouter;
