@@ -1,62 +1,71 @@
 import React from "react";
-import { Table, Button, Container, Card, Badge, Image } from "react-bootstrap";
-import { Eye, PencilSquare, Trash } from "react-bootstrap-icons";
+import { Table, Button, Container, Card, Badge } from "react-bootstrap";
+import { PencilSquare, Trash } from "react-bootstrap-icons";
 
 const Tours = () => {
     // Dữ liệu mẫu
     const tours = [
         {
-            id: 1,
-            name: "Hà Nội - Sapa 3 ngày 2 đêm",
-            price: "3,500,000đ",
-            status: "Đang mở bán",
-            image: "https://picsum.photos/60/40?random=1",
+            id: 201,
+            name: "Hà Nội - Hạ Long 3N2Đ",
+            price: 3200000,
+            status: "Còn chỗ",
+            startDate: "2025-04-10",
+            endDate: "2025-04-13",
         },
         {
-            id: 2,
-            name: "Đà Nẵng - Hội An 4 ngày 3 đêm",
-            price: "5,200,000đ",
-            status: "Sắp mở bán",
-            image: "https://picsum.photos/60/40?random=2",
-        },
-        {
-            id: 3,
-            name: "Phú Quốc - Thiên đường biển",
-            price: "6,800,000đ",
+            id: 202,
+            name: "Đà Nẵng - Hội An 4N3Đ",
+            price: 4200000,
             status: "Hết chỗ",
-            image: "https://picsum.photos/60/40?random=3",
+            startDate: "2025-05-05",
+            endDate: "2025-05-09",
+        },
+        {
+            id: 203,
+            name: "Nha Trang - Vinpearl 3N2Đ",
+            price: 2800000,
+            status: "Đã kết thúc",
+            startDate: "2025-03-15",
+            endDate: "2025-03-18",
         },
     ];
 
-    // Hàm hiển thị trạng thái với màu sắc
+    // Hàm hiển thị badge trạng thái tour
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case "Đang mở bán":
+            case "Còn chỗ":
                 return <Badge bg="success">🟢 {status}</Badge>;
-            case "Sắp mở bán":
-                return <Badge bg="warning">🟡 {status}</Badge>;
             case "Hết chỗ":
+                return <Badge bg="warning">🟠 {status}</Badge>;
+            case "Đã kết thúc":
                 return <Badge bg="danger">🔴 {status}</Badge>;
             default:
                 return <Badge bg="secondary">{status}</Badge>;
         }
     };
 
+    // Hàm định dạng tiền VNĐ
+    const formatCurrency = (amount: number) => {
+        return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+    };
+
     return (
         <Container className="mt-4">
             <Card className="shadow-sm">
                 <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h4 className="mb-0">Danh sách Tour</h4>
-                    <Button variant="light">➕ Thêm Tour</Button>
+                    <h4 className="mb-0">Danh sách Tours</h4>
+                    <Button variant="light">+ Thêm Tour</Button>
                 </Card.Header>
                 <Card.Body>
                     <Table striped bordered hover responsive>
                         <thead className="table-dark">
                         <tr>
                             <th>#</th>
-                            <th>Hình ảnh</th>
                             <th>Tên Tour</th>
                             <th>Giá</th>
+                            <th>Ngày khởi hành</th>
+                            <th>Ngày kết thúc</th>
                             <th>Trạng thái</th>
                             <th className="text-center">Hành động</th>
                         </tr>
@@ -65,20 +74,14 @@ const Tours = () => {
                         {tours.map((tour, index) => (
                             <tr key={tour.id}>
                                 <td>{index + 1}</td>
-                                <td>
-                                    <Image src={tour.image} rounded width={60} height={40} />
-                                </td>
                                 <td>{tour.name}</td>
-                                <td>
-                                    <strong className="text-success">{tour.price}</strong>
-                                </td>
+                                <td>{formatCurrency(tour.price)}</td>
+                                <td>{tour.startDate}</td>
+                                <td>{tour.endDate}</td>
                                 <td>{getStatusBadge(tour.status)}</td>
                                 <td className="text-center">
                                     <Button variant="info" size="sm" className="me-1">
-                                        <Eye size={16} /> Xem
-                                    </Button>
-                                    <Button variant="warning" size="sm" className="me-1">
-                                        <PencilSquare size={16} /> Sửa
+                                        <PencilSquare size={16} /> Chỉnh sửa
                                     </Button>
                                     <Button variant="danger" size="sm">
                                         <Trash size={16} /> Xóa
