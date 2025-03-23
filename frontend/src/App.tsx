@@ -11,10 +11,16 @@ import TourDetail from './pages/users/TourDetail';
 import TicketDetail from './pages/users/TicketDetail';
 
 import Profile from './pages/users/Profile';
+
+import AdminRouter from "./router/AdminRouter";
+import React from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import ForgotPassword from './form/ForgotPassword';
 import RegisterForm from './form/Register';
 import LoginForm from './form/LoginForm';
 import ChatWidget from './components/ChatWidget';
+
 
 
 function App() {
@@ -32,6 +38,8 @@ function App() {
         <Route path="/ticket-detail" element={<TicketDetail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/profile" element={<Profile/>} />
+      {/*  Admin*/}
+        <Route path="/admin/*" element={<AdminRouter />} />
       </Routes>
     </Router>
          <ChatWidget  />
