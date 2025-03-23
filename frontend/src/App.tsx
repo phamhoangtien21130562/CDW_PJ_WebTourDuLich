@@ -7,17 +7,26 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Im
 import Index from './pages/users/Home';
 import HotelDetail from './pages/users/HotelDetail';
 import TourDetail from './pages/users/TourDetail';
-import LoginForm from './form/LoginForm';
-import RegisterForm from './form/Register';
+
 import TicketDetail from './pages/users/TicketDetail';
-import ForgotPassword from './form/ForgotPassword';
+
 import Profile from './pages/users/Profile';
+
 import AdminRouter from "./router/AdminRouter";
 import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+import ForgotPassword from './form/ForgotPassword';
+import RegisterForm from './form/Register';
+import LoginForm from './form/LoginForm';
+import ChatWidget from './components/ChatWidget';
+
+
+
 function App() {
   return (
-    <Router>
+   <div>
+     <Router>
       <Routes>
         {/* Trang danh sách khách sạn */}
         <Route path="/" element={<Index />} />
@@ -33,6 +42,8 @@ function App() {
         <Route path="/admin/*" element={<AdminRouter />} />
       </Routes>
     </Router>
+         <ChatWidget  />
+   </div>
   );
 }
 
