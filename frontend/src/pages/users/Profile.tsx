@@ -6,8 +6,16 @@ import MyOrders from '../../components/MyOrders';
 import MyVouchers from '../../components/MyVouchers';
 import MyComments from '../../components/MyComments';
 import Header from '../../components/Header';
-
-// Định nghĩa interface cho Province
+interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  birthDate?: string;  // ISO date string
+  gender?: string;
+  address?: string;
+  invoiceInfo?: string;
+}
 interface Province {
     id: string | number;
     name: string;
@@ -20,8 +28,25 @@ const Profile: React.FC = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true); // Trạng thái ẩn/hiện thanh bên
   const [activeTab, setActiveTab] = useState('profile'); // Tab đang được chọn (mặc định là profile)
   const [isEditing, setIsEditing] = useState(false); // Trạng thái chỉnh sửa thông tin cá nhân
-
-  // Hàm toggle thanh bên
+ const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<User>>({});
+function parseJwt(token: string): { id?: string } | null {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
@@ -31,7 +56,42 @@ const Profile: React.FC = () => {
     setActiveTab(tab);
     setIsEditing(false); // Reset chế độ chỉnh sửa khi chuyển tab
   };
+ useEffect(() => {
+  // Thử lấy token từ sessionStorage hoặc localStorage
+  const token =  localStorage.getItem('token');
+  if (!token) {
+    setError('Chưa đăng nhập');
+    setIsLoading(false);
+    return;
+  }
 
+  const decoded = parseJwt(token);
+  if (!decoded || !decoded.id) {
+    setError('Token không hợp lệ hoặc thiếu thông tin id');
+    setIsLoading(false);
+    return;
+  }
+
+  const userId = decoded.id;
+
+  const fetchUser = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/users/${userId}`);
+      if (!res.ok) {
+        throw new Error('Không tìm thấy người dùng');
+      }
+      const data: User = await res.json();
+      setUser(data);
+      setFormData(data);
+      setIsLoading(false);
+    } catch (err: any) {
+      setError(err.message || 'Lỗi khi lấy thông tin người dùng');
+      setIsLoading(false);
+    }
+  };
+
+  fetchUser();
+}, []);
   // Hàm toggle chế độ chỉnh sửa
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -55,6 +115,38 @@ const Profile: React.FC = () => {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+   const handleSave = async () => {
+    if (!user) return;
+
+    try {
+      const res = await fetch(`http://localhost:8080/users/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+          birthDate: formData.birthDate,
+          gender: formData.gender,
+          address: formData.address,
+          invoiceInfo: formData.invoiceInfo,
+        }),
+      });
+      if (!res.ok) {
+        const errorMsg = await res.text();
+        throw new Error(errorMsg || 'Lưu thông tin thất bại');
+      }
+      const updatedUser = await res.json();
+      setUser(updatedUser);
+      setFormData(updatedUser);
+      setIsEditing(false);
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
 
   return (
     <div>
@@ -104,114 +196,144 @@ const Profile: React.FC = () => {
           </Col>
         )}
 
-        {/* Nội dung chính */}
         <Col md={isSidebarVisible ? 9 : 12} className="profile-content">
-          {/* Tab Thông tin cá nhân */}
-          {activeTab === 'profile' && (
-            <Card>
-              <Card.Body>
-                <Card.Title>Thông tin cá nhân</Card.Title> 
-                <Button variant="link" className="edit-link p-0" onClick={handleEditToggle}>
-                          Chỉnh sửa
-                        </Button>
-                <Card.Text>Lưu thông tin của Quý khách để đặt dịch vụ nhanh hơn</Card.Text>
+            {activeTab === 'profile' && (
+              <Card>
+                <Card.Body>
+                  <Card.Title>Thông tin cá nhân</Card.Title>
+                  <Button variant="link" className="edit-link p-0" onClick={handleEditToggle}>
+                    {isEditing ? 'Hủy' : 'Chỉnh sửa'}
+                  </Button>
+                  <Card.Text>Lưu thông tin của Quý khách để đặt dịch vụ nhanh hơn</Card.Text>
 
-                {isEditing ? (
-                  <Form>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Họ tên</Form.Label>
-                      <Form.Control type="text" defaultValue="Duythuan Huynh" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Địa chỉ email</Form.Label>
-                      <Form.Control type="email" defaultValue="huynduythuan686@gmail.com" />
-                      <Form.Text className="text-muted">
-                        Đây là email Quý khách đã xác thực. IVIVU sẽ gửi các xác nhận đến địa chỉ email này.
-                      </Form.Text>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Số điện thoại</Form.Label>
-                      <Form.Control type="text" placeholder="Thêm số điện thoại của bạn" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Ngày sinh</Form.Label>
-                      <Form.Control type="date" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Giới tính</Form.Label>
-                      <Form.Select>
-                        <option>Chọn giới tính</option>
-                        <option>Nam</option>
-                        <option>Nữ</option>
-                        <option>Khác</option>
-                      </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Địa chỉ</Form.Label>
-                      <Form.Control type="text" placeholder="Nhập địa chỉ" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Thông tin xuất hóa đơn trực tuyến</Form.Label>
-                      <Form.Control type="text" placeholder="Nhập thông tin" />
-                    </Form.Group>
-                    <Button variant="primary" onClick={handleEditToggle}>
-                      Lưu
-                    </Button>
-                  </Form>
-                ) : (
-                  <>
-                    <div className="mb-3">
-                      <label className="form-label">Họ tên</label>
-                      <p>
-                        Duythuan Huynh{' '}
-                      
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Địa chỉ email</label>
-                      <p>
-                        huynduythuan686@gmail.com{' '}
-                      
-                      </p>
-                      <small>
-                        Đây là email Quý khách đã xác thực. IVIVU sẽ gửi các xác nhận đến địa chỉ email này.
-                      </small>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Số điện thoại</label>
-                      <p>
-                        Thêm số điện thoại của bạn{' '}
-                        
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Ngày sinh</label>
-                      <p>
-                        Nhập ngày sinh của bạn{' '}
-                     
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Giới tính</label>
-                      <p>
-                        Nhập giới tính của bạn{' '}
-                     
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Địa chỉ</label>
-                      <p>
-                        Nhập địa chỉ{' '}
-                     
-                      </p>
-                    </div>
-                 
-                  </>
-                )}
-              </Card.Body>
-            </Card>
-          )}
+                  {isLoading && <p>Đang tải thông tin...</p>}
+                  {error && <p className="text-danger">{error}</p>}
 
+                  {!isLoading && !error && user && (
+                    <>
+                      {isEditing ? (
+                        <Form>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Họ tên</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="fullName"
+                              value={formData.fullName || ''}
+                              onChange={handleInputChange}
+                            />
+                          </Form.Group>
+
+                          <Form.Group className="mb-3">
+                            <Form.Label>Địa chỉ email</Form.Label>
+                            <Form.Control
+                              type="email"
+                              name="email"
+                              value={formData.email || ''}
+                              readOnly
+                            />
+                            <Form.Text className="text-muted">
+                              Đây là email Quý khách đã xác thực. IVIVU sẽ gửi các xác nhận đến địa chỉ email này.
+                            </Form.Text>
+                          </Form.Group>
+
+                          <Form.Group className="mb-3">
+                            <Form.Label>Số điện thoại</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="phoneNumber"
+                              value={formData.phoneNumber || ''}
+                              onChange={handleInputChange}
+                            />
+                          </Form.Group>
+
+                          <Form.Group className="mb-3">
+                            <Form.Label>Ngày sinh</Form.Label>
+                            <Form.Control
+                              type="date"
+                              name="birthDate"
+                              value={formData.birthDate ? new Date(formData.birthDate).toISOString().substr(0, 10) : ''}
+                              onChange={handleInputChange}
+                            />
+                          </Form.Group>
+
+                          <Form.Group className="mb-3">
+                            <Form.Label>Giới tính</Form.Label>
+                            <Form.Select
+                              name="gender"
+                              value={formData.gender || ''}
+                              onChange={handleInputChange}
+                            >
+                              <option value="">Chọn giới tính</option>
+                              <option value="Nam">Nam</option>
+                              <option value="Nữ">Nữ</option>
+                              <option value="Khác">Khác</option>
+                            </Form.Select>
+                          </Form.Group>
+
+                          <Form.Group className="mb-3">
+                            <Form.Label>Địa chỉ</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="address"
+                              value={formData.address || ''}
+                              onChange={handleInputChange}
+                            />
+                          </Form.Group>
+
+                          <Form.Group className="mb-3">
+                            <Form.Label>Thông tin xuất hóa đơn trực tuyến</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="invoiceInfo"
+                              value={formData.invoiceInfo || ''}
+                              onChange={handleInputChange}
+                            />
+                          </Form.Group>
+
+                          <Button variant="primary" onClick={handleSave}>
+                            Lưu
+                          </Button>
+                        </Form>
+                      ) : (
+                        <>
+                          <div className="mb-3">
+                            <label className="form-label">Họ tên</label>
+                            <p>{user.fullName}</p>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label">Địa chỉ email</label>
+                            <p>{user.email}</p>
+                            <small>
+                              Đây là email Quý khách đã xác thực. IVIVU sẽ gửi các xác nhận đến địa chỉ email này.
+                            </small>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label">Số điện thoại</label>
+                            <p>{user.phoneNumber || 'Chưa cập nhật'}</p>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label">Ngày sinh</label>
+                            <p>{user.birthDate ? new Date(user.birthDate).toLocaleDateString() : 'Chưa cập nhật'}</p>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label">Giới tính</label>
+                            <p>{user.gender || 'Chưa cập nhật'}</p>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label">Địa chỉ</label>
+                            <p>{user.address || 'Chưa cập nhật'}</p>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label">Thông tin xuất hóa đơn trực tuyến</label>
+                            <p>{user.invoiceInfo || 'Chưa cập nhật'}</p>
+                          </div>
+                        </>
+                      )}
+                    </>
+                  )}
+                </Card.Body>
+              </Card>
+            )}
           {/* Tab Đơn hàng */}
           {activeTab === 'orders' && (
            <MyOrders />
