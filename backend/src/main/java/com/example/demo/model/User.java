@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.Set;
 
 @Data
@@ -14,9 +15,15 @@ public class User {
     @Id
     private String id;
 
-    private String fullName;
-    private String emailOrPhone;
-    private String password;
+    private String fullName;          
+    private String email;             
+    private String phoneNumber;        
+    private Date birthDate;          
+    private String gender;            
+    private String address;           
+    private String invoiceInfo;        
+
+    private String password;           
 
     @DBRef
     private Set<Role> roles;
@@ -37,12 +44,52 @@ public class User {
 		this.fullName = fullName;
 	}
 
-	public String getEmailOrPhone() {
-		return emailOrPhone;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setEmailOrPhone(String emailOrPhone) {
-		this.emailOrPhone = emailOrPhone;
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public Date getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getInvoiceInfo() {
+		return invoiceInfo;
+	}
+
+	public void setInvoiceInfo(String invoiceInfo) {
+		this.invoiceInfo = invoiceInfo;
 	}
 
 	public String getPassword() {
@@ -60,6 +107,6 @@ public class User {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-    
 
+   
 }
