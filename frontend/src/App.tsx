@@ -30,6 +30,7 @@ function App() {
       <Routes>
         {/* Trang danh sách khách sạn */}
         <Route path="/" element={<Index />} />
+        <Route path="/home" element={<Index />} />
         {/* Trang chi tiết khách sạn */}
         <Route path="/hotel" element={<HotelDetail />} />
         <Route path="/tour-detail" element={<TourDetail />} />

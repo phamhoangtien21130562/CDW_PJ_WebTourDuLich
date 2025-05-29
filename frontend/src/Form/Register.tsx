@@ -67,7 +67,7 @@ class RegisterForm extends Component<RegisterFormProps, RegisterFormState> {
     try {
       await axios.post('http://localhost:8080/users', {
         fullName: fullName,
-        emailOrPhone: email,
+        email: email,
         password: password,
       });
 
@@ -80,10 +80,10 @@ class RegisterForm extends Component<RegisterFormProps, RegisterFormState> {
         confirmPassword: '',
       });
     } catch (error: any) {
-      const message =
-        error.response?.data || '❌ Đã xảy ra lỗi trong quá trình đăng ký.';
-      this.showToast(message, 'danger');
-    }
+  const message =
+    (error as any).response?.data || '❌ Đã xảy ra lỗi trong quá trình đăng ký.';
+  this.showToast(message, 'danger');
+}
   };
 
   showToast = (message: string, variant: 'success' | 'danger') => {
@@ -133,11 +133,11 @@ class RegisterForm extends Component<RegisterFormProps, RegisterFormState> {
           {/* Email / Số điện thoại */}
           <Form.Group controlId="formEmail" className="mb-3">
             <Form.Label>
-              Email / Số điện thoại di động <span className="text-danger">*</span>
+              Email<span className="text-danger">*</span>
             </Form.Label>
             <Form.Control
-              type="text"
-              placeholder="Ví dụ: 0901234567 hoặc email@gmail.com"
+              type="email"
+              placeholder="Ví dụ:  email@gmail.com"
               value={email}
               onChange={this.handleEmailChange}
               required

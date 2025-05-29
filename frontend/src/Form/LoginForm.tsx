@@ -53,21 +53,30 @@ showToast = (message: string, variant: 'success' | 'danger') => {
 
     try {
       const response = await axios.post('http://localhost:8080/users/login', {
-        emailOrPhone: email,
+        email: email,
         password: password,
       });
+  const data = response.data;
+   if (data.token) {
+      localStorage.setItem('token', data.token);
+    }
 
       this.showToast(response.data, 'success');
       this.setState({ email: '', password: '' });
 
-      setTimeout(() => this.props.navigate('/'), 1500);
+  if (data.roles.includes('ROLE_ADMIN')) {
+      this.props.navigate('/admin');
+    } else if (data.roles.includes('ROLE_USER')) {
+      this.props.navigate('/home');
+    } else {
+      // Nếu không có role nào phù hợp, chuyển sang trang mặc định
+      this.props.navigate('/');
+    }
     } catch (error: unknown) {
   if (axios.isAxiosError(error)) {
     const message = error.response?.data || '❌ Đăng nhập thất bại.';
     this.showToast(message, 'danger');
-  } else {
-    this.showToast('❌ Đã xảy ra lỗi không xác định.', 'danger');
-  }
+  } 
 }
   };
 
@@ -90,9 +99,9 @@ showToast = (message: string, variant: 'success' | 'danger') => {
         <Form onSubmit={this.handleSubmit}>
           {/* Email / Số điện thoại */}
           <Form.Group controlId="formEmail" className="mb-3">
-            <Form.Label>Email / Số điện thoại di động</Form.Label>
+            <Form.Label>Email </Form.Label>
             <Form.Control
-              type="text"
+              type="email"
               placeholder=""
               value={email}
               onChange={this.handleEmailChange}
@@ -111,7 +120,7 @@ showToast = (message: string, variant: 'success' | 'danger') => {
                 value={password}
                 onChange={this.handlePasswordChange}
                 required
-                className="input-field w-100" // Thêm class để kiểm soát chiều rộng
+                className="input-field w-100" 
               />
             
            
