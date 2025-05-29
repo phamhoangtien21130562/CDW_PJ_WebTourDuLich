@@ -1,7 +1,8 @@
 import React, { Component, ChangeEvent, FormEvent } from 'react';
-import { Button, Form } from 'react-bootstrap'; // Bỏ import InputGroup
+import { Button, Form, Toast, ToastContainer } from 'react-bootstrap'; // Bỏ import InputGroup
 import '../assets/css/register.css';
 import Header from '../components/HeaderUer';
+import axios from 'axios';
 
 interface RegisterFormProps {}
 
@@ -12,6 +13,9 @@ interface RegisterFormState {
   confirmPassword: string;
   showPassword: boolean;
   showConfirmPassword: boolean;
+  showToast: boolean;
+  toastMessage: string;
+  toastVariant: 'success' | 'danger';
 }
 
 class RegisterForm extends Component<RegisterFormProps, RegisterFormState> {
@@ -22,6 +26,9 @@ class RegisterForm extends Component<RegisterFormProps, RegisterFormState> {
     confirmPassword: '',
     showPassword: false,
     showConfirmPassword: false,
+    showToast: false,
+    toastMessage: '',
+    toastVariant: 'success',
   };
 
   handleFullNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -48,23 +55,59 @@ class RegisterForm extends Component<RegisterFormProps, RegisterFormState> {
     this.setState((prevState) => ({ showConfirmPassword: !prevState.showConfirmPassword }));
   };
 
-  handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+ handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { fullName, email, password, confirmPassword } = this.state;
-    console.log('Full Name:', fullName);
-    console.log('Email:', email);
-    console.log('Password:', password);
-    console.log('Confirm Password:', confirmPassword);
+
+    if (password !== confirmPassword) {
+      this.showToast('❌ Mật khẩu xác nhận không khớp.', 'danger');
+      return;
+    }
+
+    try {
+      await axios.post('http://localhost:8080/users', {
+        fullName: fullName,
+        emailOrPhone: email,
+        password: password,
+      });
+
+      this.showToast('✅ Đăng ký thành công!', 'success');
+
+      this.setState({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
+    } catch (error: any) {
+      const message =
+        error.response?.data || '❌ Đã xảy ra lỗi trong quá trình đăng ký.';
+      this.showToast(message, 'danger');
+    }
+  };
+
+  showToast = (message: string, variant: 'success' | 'danger') => {
     this.setState({
-      fullName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      showToast: true,
+      toastMessage: message,
+      toastVariant: variant,
     });
   };
 
   render() {
-    const { fullName, email, password, confirmPassword, showPassword, showConfirmPassword } = this.state;
+    const {
+      fullName,
+      email,
+      password,
+      confirmPassword,
+      showPassword,
+      showConfirmPassword,
+      showToast,
+      toastMessage,
+      toastVariant,
+    } = this.state;
+
+  
 
     return (
     <div>
@@ -150,6 +193,17 @@ class RegisterForm extends Component<RegisterFormProps, RegisterFormState> {
           </Button>
         </Form>
       </div>
+        <ToastContainer position="top-end" className="p-3">
+          <Toast
+            onClose={() => this.setState({ showToast: false })}
+            show={showToast}
+            delay={3000}
+            autohide
+            bg={toastVariant}
+          >
+            <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+          </Toast>
+        </ToastContainer>
     </div>
     );
   }

@@ -1,23 +1,40 @@
 import React, { Component, ChangeEvent, FormEvent } from 'react';
-import { Button, Form, InputGroup } from 'react-bootstrap';
+import { Button, Form, Toast, ToastContainer } from 'react-bootstrap';
 import '../assets/css/login.css';
 import Header from '../components/HeaderUer';
-
-interface LoginFormProps {}
+import { NavigateFunction, } from 'react-router-dom';
+import axios from 'axios';
+import { withNavigation } from '../utils/withNavigation';
+interface LoginFormProps {
+  navigate: NavigateFunction;
+}
 
 interface LoginFormState {
   email: string;
   password: string;
   showPassword: boolean;
+  showToast: boolean;
+  toastMessage: string;
+  toastVariant: 'success' | 'danger';
 }
 
 class LoginForm extends Component<LoginFormProps, LoginFormState> {
+
   state: LoginFormState = {
     email: '',
     password: '',
     showPassword: false,
+    showToast: false,
+    toastMessage: '',
+    toastVariant: 'success',
   };
-
+showToast = (message: string, variant: 'success' | 'danger') => {
+  this.setState({
+    showToast: true,
+    toastMessage: message,
+    toastVariant: variant,
+  });
+};
   handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     this.setState({ email: e.target.value });
   };
@@ -30,16 +47,39 @@ class LoginForm extends Component<LoginFormProps, LoginFormState> {
     this.setState((prevState) => ({ showPassword: !prevState.showPassword }));
   };
 
-  handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { email, password } = this.state;
-    console.log('Email:', email);
-    console.log('Password:', password);
-    this.setState({ email: '', password: '' });
+
+    try {
+      const response = await axios.post('http://localhost:8080/users/login', {
+        emailOrPhone: email,
+        password: password,
+      });
+
+      this.showToast(response.data, 'success');
+      this.setState({ email: '', password: '' });
+
+      setTimeout(() => this.props.navigate('/'), 1500);
+    } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    const message = error.response?.data || '❌ Đăng nhập thất bại.';
+    this.showToast(message, 'danger');
+  } else {
+    this.showToast('❌ Đã xảy ra lỗi không xác định.', 'danger');
+  }
+}
   };
 
   render() {
-    const { email, password, showPassword } = this.state;
+    const {
+      email,
+      password,
+      showPassword,
+      showToast,
+      toastMessage,
+      toastVariant,
+    } = this.state;
 
     return (
       <div >
@@ -114,9 +154,20 @@ class LoginForm extends Component<LoginFormProps, LoginFormState> {
           </div>
         </Form>
       </div>
+       <ToastContainer  position="top-end" className="p-3">
+          <Toast
+            onClose={() => this.setState({ showToast: false })}
+            show={showToast}
+            delay={3000}
+            autohide
+            bg={toastVariant}
+          >
+            <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+          </Toast>
+        </ToastContainer>
       </div>
     );
   }
 }
 
-export default LoginForm;
+export default withNavigation(LoginForm);
