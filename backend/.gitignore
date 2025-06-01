@@ -31,3 +31,27 @@ build/
 
 ### VS Code ###
 .vscode/
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+# Chặn toàn bộ node_modules
+node_modules/
+# IntelliJ
+.idea/
+
+# File upload
+upload/images/
