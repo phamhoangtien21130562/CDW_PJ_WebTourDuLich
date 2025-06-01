@@ -90,7 +90,7 @@ console.log('userName:', userName);
     <div className="App">
       <Navbar bg="primary" className="header sticky-top" variant="dark" expand="lg" sticky="top">
         <Container>
-          <Navbar.Brand href="#home">
+          <Navbar.Brand href="/">
             <img src="https://www.ivivu.com/du-lich/content/img/logo.svg" alt="IVIVU Logo" />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />

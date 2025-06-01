@@ -1,100 +1,151 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Table, Button, Container, Card, Badge } from "react-bootstrap";
 import { PencilSquare, Trash } from "react-bootstrap-icons";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-const Tours = () => {
-    // Dữ liệu mẫu
-    const tours = [
-        {
-            id: 201,
-            name: "Hà Nội - Hạ Long 3N2Đ",
-            price: 3200000,
-            status: "Còn chỗ",
-            startDate: "2025-04-10",
-            endDate: "2025-04-13",
-        },
-        {
-            id: 202,
-            name: "Đà Nẵng - Hội An 4N3Đ",
-            price: 4200000,
-            status: "Hết chỗ",
-            startDate: "2025-05-05",
-            endDate: "2025-05-09",
-        },
-        {
-            id: 203,
-            name: "Nha Trang - Vinpearl 3N2Đ",
-            price: 2800000,
-            status: "Đã kết thúc",
-            startDate: "2025-03-15",
-            endDate: "2025-03-18",
-        },
-    ];
+interface Tour {
+  id: string;
+  title: string;
+  price: number;
+  availabilityStatus: string | null;
+  startDate: string | null;
+  endDate: string | null;
+}
 
-    // Hàm hiển thị badge trạng thái tour
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "Còn chỗ":
-                return <Badge bg="success">🟢 {status}</Badge>;
-            case "Hết chỗ":
-                return <Badge bg="warning">🟠 {status}</Badge>;
-            case "Đã kết thúc":
-                return <Badge bg="danger">🔴 {status}</Badge>;
-            default:
-                return <Badge bg="secondary">{status}</Badge>;
-        }
+const Tours: React.FC = () => {
+  const navigate = useNavigate();
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        const res = await axios.get<Tour[]>("http://localhost:8080/api/tours");
+        setTours(res.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách tours:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Hàm định dạng tiền VNĐ
-    const formatCurrency = (amount: number) => {
-        return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-    };
+    fetchTours();
+  }, []);
+const handleDelete = async (id: string) => {
+    const result = await Swal.fire({
+      title: "Bạn có chắc muốn xoá tour này?",
+      text: "Hành động này sẽ xoá mềm tour khỏi hệ thống!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Có, xoá đi!",
+      cancelButtonText: "Huỷ",
+    });
 
-    return (
-        <Container className="mt-4">
-            <Card className="shadow-sm">
-                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h4 className="mb-0">Danh sách Tours</h4>
-                    <Button variant="light">+ Thêm Tour</Button>
-                </Card.Header>
-                <Card.Body>
-                    <Table striped bordered hover responsive>
-                        <thead className="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Tên Tour</th>
-                            <th>Giá</th>
-                            <th>Ngày khởi hành</th>
-                            <th>Ngày kết thúc</th>
-                            <th>Trạng thái</th>
-                            <th className="text-center">Hành động</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {tours.map((tour, index) => (
-                            <tr key={tour.id}>
-                                <td>{index + 1}</td>
-                                <td>{tour.name}</td>
-                                <td>{formatCurrency(tour.price)}</td>
-                                <td>{tour.startDate}</td>
-                                <td>{tour.endDate}</td>
-                                <td>{getStatusBadge(tour.status)}</td>
-                                <td className="text-center">
-                                    <Button variant="info" size="sm" className="me-1">
-                                        <PencilSquare size={16} /> Chỉnh sửa
-                                    </Button>
-                                    <Button variant="danger" size="sm">
-                                        <Trash size={16} /> Xóa
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </Table>
-                </Card.Body>
-            </Card>
-        </Container>
-    );
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:8080/api/tours/${id}`);
+        Swal.fire("Đã xoá!", "Tour đã được xoá.", "success");
+        // Load lại danh sách tours sau khi xoá
+        setLoading(true);
+        const res = await axios.get<Tour[]>("http://localhost:8080/api/tours");
+        setTours(res.data);
+      } catch (error) {
+        console.error("Lỗi khi xoá tour:", error);
+        Swal.fire("Lỗi", "Không thể xoá tour lúc này.", "error");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const getStatusBadge = (status: string | null) => {
+    switch (status) {
+      case "Còn chỗ":
+        return <Badge bg="success">🟢 {status}</Badge>;
+      case "Hết chỗ":
+        return <Badge bg="warning">🟠 {status}</Badge>;
+      case "Đã kết thúc":
+        return <Badge bg="danger">🔴 {status}</Badge>;
+      default:
+        return <Badge bg="secondary">Chưa xác định</Badge>;
+    }
+  };
+
+  // Format tiền VNĐ
+  const formatCurrency = (amount: number) =>
+    amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+
+  // Format ngày (có thể null)
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("vi-VN");
+  };
+
+  if (loading) return <div>Đang tải dữ liệu...</div>;
+
+  return (
+    <Container className="mt-4">
+      <Card className="shadow-sm">
+        <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
+          <h4 className="mb-0">Danh sách Tours</h4>
+          <Button variant="light" onClick={() => navigate("/addtour")}>
+            + Thêm Tour
+          </Button>
+        </Card.Header>
+        <Card.Body>
+          <Table striped bordered hover responsive>
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Tên Tour</th>
+                <th>Giá</th>
+                <th>Ngày khởi hành</th>
+                <th>Ngày kết thúc</th>
+                <th>Trạng thái</th>
+                <th className="text-center">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tours.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="text-center">
+                    Không có tour nào.
+                  </td>
+                </tr>
+              )}
+              {tours.map((tour, index) => (
+                <tr key={tour.id}>
+                  <td>{index + 1}</td>
+                  <td>{tour.title}</td>
+                  <td>{formatCurrency(tour.price)}</td>
+                  <td>{formatDate(tour.startDate)}</td>
+                  <td>{formatDate(tour.endDate)}</td>
+                  <td>{getStatusBadge(tour.availabilityStatus)}</td>
+                  <td className="text-center">
+                    <Button variant="info" size="sm" className="me-1" onClick={() => navigate(`/admin/tours/edit/${tour.id}`)}>
+                      <PencilSquare size={16} /> Chỉnh sửa
+                    </Button>
+                  <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleDelete(tour.id)}
+            >
+              <Trash size={16} /> Xóa
+            </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
+    </Container>
+  );
 };
 
 export default Tours;

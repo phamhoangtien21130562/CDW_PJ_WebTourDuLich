@@ -28,85 +28,94 @@ public class User {
     @DBRef
     private Set<Role> roles;
 
-	public String getId() {
-		return id;
-	}
+    // Thêm trường isLocked, mặc định false
+    private boolean isLocked = false;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getFullName() {
-		return fullName;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
+    public String getFullName() {
+        return fullName;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
-	public Date getBirthDate() {
-		return birthDate;
-	}
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-	public void setBirthDate(Date birthDate) {
-		this.birthDate = birthDate;
-	}
+    public Date getBirthDate() {
+        return birthDate;
+    }
 
-	public String getGender() {
-		return gender;
-	}
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
 
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
+    public String getGender() {
+        return gender;
+    }
 
-	public String getAddress() {
-		return address;
-	}
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
-	public void setAddress(String address) {
-		this.address = address;
-	}
+    public String getAddress() {
+        return address;
+    }
 
-	public String getInvoiceInfo() {
-		return invoiceInfo;
-	}
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-	public void setInvoiceInfo(String invoiceInfo) {
-		this.invoiceInfo = invoiceInfo;
-	}
+    public String getInvoiceInfo() {
+        return invoiceInfo;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public void setInvoiceInfo(String invoiceInfo) {
+        this.invoiceInfo = invoiceInfo;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public Set<Role> getRoles() {
-		return roles;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
+    public Set<Role> getRoles() {
+        return roles;
+    }
 
-   
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean locked) {
+        isLocked = locked;
+    }
 }

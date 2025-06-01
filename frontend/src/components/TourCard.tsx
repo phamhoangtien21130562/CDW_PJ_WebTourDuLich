@@ -1,20 +1,20 @@
 import React from 'react';
 import { Card, Badge } from 'react-bootstrap';
+import { Link } from 'react-router-dom';  // Import Link
 
-// Define the shape of the tour object
 interface Tour {
   image: string;
   title: string;
   price: string;
-  description?: string; // Optional, since it’s not in the error but used in the code
-  badge?: string; // Optional, based on conditional rendering
-  icons?: string[]; // Optional, based on conditional rendering
+  description?: string;
+  badge?: string;
+  icons?: string[];
+  id?: string;  // thêm id nếu cần dùng
 }
 
-// Define the props for TourCard
 interface TourCardProps {
   tour: Tour;
-  isSmall?: boolean; // Optional prop with ? (defaults to false if omitted)
+  isSmall?: boolean;
 }
 
 const TourCard: React.FC<TourCardProps> = ({ tour, isSmall }) => {
@@ -29,7 +29,17 @@ const TourCard: React.FC<TourCardProps> = ({ tour, isSmall }) => {
         )}
       </div>
       <Card.Body className="d-flex flex-column">
-        <Card.Title className="tour-card-title">{tour.title}</Card.Title>
+        {/* Link bọc title, điều hướng đến chi tiết tour */}
+        {tour.id ? (
+          <Card.Title className="tour-card-title">
+            <Link to={`/tour-detail/${tour.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              {tour.title}
+            </Link>
+          </Card.Title>
+        ) : (
+          <Card.Title className="tour-card-title">{tour.title}</Card.Title>
+        )}
+
         <Card.Text className="tour-card-description flex-grow-1">{tour.description}</Card.Text>
         <div className="d-flex justify-content-between align-items-center mt-auto">
           <span className="text-danger fw-bold">{tour.price}</span>
