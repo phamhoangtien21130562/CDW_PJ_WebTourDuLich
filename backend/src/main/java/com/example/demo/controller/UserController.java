@@ -60,6 +60,37 @@ public class UserController {
 
         return ResponseEntity.ok("✅ Đăng ký người dùng thành công.");
     }
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return ResponseEntity.ok(users);
+    }
+    @PutMapping("/{id}/lock")
+    public ResponseEntity<?> lockUser(@PathVariable String id) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Người dùng không tồn tại");
+        }
+
+        User user = userOpt.get();
+        user.setLocked(true);  // khoá tài khoản
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Tài khoản đã được khóa thành công");
+    }
+    @PutMapping("/{id}/unlock")
+    public ResponseEntity<?> unlockUser(@PathVariable String id) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Người dùng không tồn tại");
+        }
+
+        User user = userOpt.get();
+        user.setLocked(false);  // mở khóa tài khoản
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Tài khoản đã được mở khóa thành công");
+    }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
 

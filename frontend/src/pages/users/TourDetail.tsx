@@ -1,154 +1,106 @@
-// TourDetail.js
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Button, Form, Table, Carousel } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
+import { Container, Row, Col, Card,  Button, Form, Table } from 'react-bootstrap';
 
 import '../../assets/css/tour.css';
 
 import Footer from '../../components/Footer';
-import TourCard from '../../components/TourCard';
+
 import Header from '../../components/HeaderUer';
+import { Link } from 'react-router-dom';
 
-// Sample tour data
-const tourData = {
-  title: 'Tour Đà Lạt 4N3Đ: HCM - Đà Lạt Tương - Đầm Cao Mỵ - Ngõ Nhật Nguyệt - Thác Phú Đài - Đỉnh Bạc',
-  mainImage: 'https://cdn2.ivivu.com/2024/10/14/15/thap-phan-dai-loan-ivv-750x460.gif',
-  subImages: [
-    'https://cdn2.ivivu.com/2019/03/14/11/ivivu-toa-thap-taipei-101-750x460.jpg',
-    'https://cdn2.ivivu.com/2024/10/14/15/thap-phan-dai-loan-ivv-750x460.gif',
-    
-  ],
-  price: '9.990.000 VNĐ',
-  duration: '4 Ngày 3 Đêm',
-  transport: 'plane',
-  highlights: [
-    'Phố Cổ Hội An',
-    'Bà Nà Hill',
-    'Biển Sơn Trà',
-    'Rừng Dừa Bảy Mẫu',
-  ],
-  itinerary: [
-    { day: 1, description: 'HCM - Đà Lạt: Đón khách tại sân bay, di chuyển đến Đà Lạt, nhận phòng khách sạn.' },
-    { day: 2, description: 'Đà Lạt - Thác Phú Đài: Tham quan Thác Phú Đài, Đỉnh Bạc, ăn tối tại nhà hàng địa phương.' },
-    { day: 3, description: 'Đà Lạt - Ngõ Nhật Nguyệt: Tham quan Ngõ Nhật Nguyệt, Đầm Cao Mỵ, tự do khám phá chợ đêm.' },
-    { day: 4, description: 'Đà Lạt - HCM: Tham quan Rừng Dừa Bảy Mẫu, trở về HCM, kết thúc tour.' },
-  ],
-  schedule: [
-    { date: 'TS 09/04/2025', price: '9.990.000 VNĐ', status: 'Lịch Hàng Tuần' },
-    { date: 'CN 09/04/2025', price: '9.990.000 VNĐ', status: 'Lịch Hàng Tuần' },
-    { date: 'TS 15/04/2025', price: '10.990.000 VNĐ', status: 'Lịch Hàng Tuần' },
-    { date: 'CN 15/04/2025', price: '10.990.000 VNĐ', status: 'Lịch Hàng Tuần' },
-    { date: 'TS 20/04/2025', price: '10.990.000 VNĐ', status: 'Lịch Hàng Tuần' },
-    { date: 'CN 20/04/2025', price: '10.990.000 VNĐ', status: 'Lịch Hàng Tuần' },
-  ],
-  usefulInfo: [
-    'Về Chỗ Nghỉ: Khách sạn 4 sao, đầy đủ tiện nghi.',
-    'Về Thức Ăn: Bao gồm 3 bữa sáng, 4 bữa chính.',
-    'Về Phương Tiện: Xe du lịch đời mới, máy lạnh.',
-    'Lưu Ý: Mang theo giấy tờ tùy thân, quần áo phù hợp.',
-  ],
-};
+interface ScheduleItem {
+  dayNumber: number;
+  description: string;
+}
 
-// Sample related tours
-const relatedTours = [
-  {
-    image: 'https://cdn2.ivivu.com/2023/04/11/15/ivivu-oishi-lavender-1-360x225.gif',
-    title: 'Tour Đà Lạt 3N2Đ: HCM - Đà Lạt - Thác Datanla - Làng Cù Lần',
-    description: '★ 3 Ngày 2 Đêm ★ Thác Datanla - Làng Cù Lần',
-    price: '5.490.000 VNĐ',
-    duration: '★ 3 Ngày 2 Đêm',
-    transport: 'car',
-  },
-  {
-    image: 'https://cdn2.ivivu.com/2023/04/11/15/ivivu-oishi-lavender-1-360x225.gif',
-    title: 'Tour Miền Tây 3N2Đ: HCM - Cần Thơ - Cái Răng - Sóc Trăng',
-    description: '★ 3 Ngày 2 Đêm ★ Chợ Nổi Cái Răng - Sóc Trăng',
-    price: '4.990.000 VNĐ',
-    duration: '★ 3 Ngày 2 Đêm',
-    transport: 'car',
-  },
-  {
-    image: 'https://cdn2.ivivu.com/2023/04/11/15/ivivu-oishi-lavender-1-360x225.gif',
-    title: 'Tour Phú Quốc 4N3Đ: HCM - Phú Quốc - Hòn Thơm - Grand World',
-    description: '★ 4 Ngày 3 Đêm ★ Hòn Thơm - Grand World',
-    price: '7.890.000 VNĐ',
-    duration: '★ 4 Ngày 3 Đêm',
-    transport: 'plane',
-  },
-];
+interface DepartureSchedule {
+  departureDate: string;
+  price: string;
+  status: string;
+}
 
-// Sample recently viewed tours
-const recentlyViewedTours = [
-  {
-    image: 'https://via.placeholder.com/300x200?text=Recently+Viewed+1',
-    title: 'Tour Nhật Bản 5N4Đ: HCM - Tokyo - Phú Sĩ - Yamanashi',
-    price: '23.999.000 VNĐ',
-  },
-  {
-    image: 'https://via.placeholder.com/300x200?text=Recently+Viewed+2',
-    title: 'Tour Liên Tuyến 5N4Đ: HCM - Bangkok - Pattaya - Đảo San Hô',
-    price: '6.800.000 VNĐ',
-  },
-];
+interface TourDetailType {
+  id: string;
+  title: string;
+  mainImageUrl: string;
+  subImageUrls: string[];
+  price: number;
+  duration: string;
+  transport: string;
+  experiences: string[];
+  schedule: ScheduleItem[];
+  departureSchedules: DepartureSchedule[];
+  notes: string[];
+  availabilityStatus?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  // Thêm các trường khác nếu cần
+}
 
-const TourDetail = () => {
-  const [activeTab, setActiveTab] = useState('khach-san'); // Default to 'khach-san'
+const TourDetail: React.FC = () => {
+  const { id } = useParams<{ id: string }>();  // Lấy id từ URL
+  const [tour, setTour] = useState<TourDetailType | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Set activeTab based on URL hash when the component mounts
   useEffect(() => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && ['khach-san', 'tours', 've-vui-choi'].includes(hash)) {
-      setActiveTab(hash);
-    }
-  }, []);
+    if (!id) return;
+    import('axios').then(({ default: axios }) => {
+      axios.get<TourDetailType>(`http://localhost:8080/api/tours/${id}`)
+        .then(res => setTour(res.data))
+        .catch(err => console.error('Lỗi lấy chi tiết tour:', err))
+        .finally(() => setLoading(false));
+    });
+  }, [id]);
 
-  // Listen for hash changes
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      if (hash && ['khach-san', 'tours', 've-vui-choi'].includes(hash)) {
-        setActiveTab(hash);
-      }
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  if (loading) return <div>Đang tải dữ liệu tour...</div>;
+  if (!tour) return <div>Không tìm thấy tour.</div>;
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* Header */}
       <Header />
 
-      {/* Main Content */}
       <Container className="my-4 flex-grow-1" style={{ paddingTop: '70px' }}>
-        {/* Tour Title */}
-        <h1 className="mb-4">{tourData.title}</h1>
+    <div style={{ padding: '10px 20px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #dee2e6' }}>
+  <Link to="/" style={{ textDecoration: 'none', color: '#0d6efd', fontWeight: '500' }}>
+    🏠 Trang chủ
+  </Link>
+</div>
+        <h1 className="mb-4">{tour.title}</h1>
 
-        {/* Main Image and Booking Form */}
+        {/* Ảnh chính và ảnh phụ */}
         <Row className="mb-4">
           <Col md={8}>
             <div className="main-image mb-3">
-              <img src={tourData.mainImage} alt="Main" className="img-fluid rounded" />
+              <img
+                src={`http://localhost:8080/loadImage?imageName=${encodeURIComponent(tour.mainImageUrl)}`}
+                alt={tour.title}
+                className="img-fluid rounded"
+              />
             </div>
             <div className="sub-images d-flex">
-              {tourData.subImages.map((image, index) => (
+              {tour.subImageUrls?.map((imgUrl, idx) => (
                 <img
-                  key={index}
-                  src={image}
-                  alt={`Sub ${index}`}
+                  key={idx}
+                  src={`http://localhost:8080/loadImage?imageName=${encodeURIComponent(imgUrl)}`}
+                  alt={`Sub ${idx}`}
                   className="sub-image me-2 rounded"
                 />
               ))}
             </div>
           </Col>
+
+          {/* Form đặt tour */}
           <Col md={4}>
             <Card className="p-3 shadow-sm">
-              <h4 className="text-danger">{tourData.price}</h4>
-              <p className="text-muted">{tourData.duration}</p>
+              <h4 className="text-danger">
+                {tour.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+              </h4>
+              <p className="text-muted">{tour.duration}</p>
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>Ngày khởi hành</Form.Label>
-                  <Form.Control type="date" />
+                  <Form.Control type="date" defaultValue={tour.startDate?.slice(0,10) || ''} />
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Số lượng khách</Form.Label>
@@ -162,50 +114,51 @@ const TourDetail = () => {
           </Col>
         </Row>
 
-        {/* Tour Information */}
+        {/* Thông tin tour chung */}
         <Row className="mb-4">
           <Col md={8}>
             <Card className="p-3 shadow-sm">
               <h4>Thông tin tour</h4>
-              <p><strong>Khởi hành:</strong> Hồ Chí Minh</p>
-              <p><strong>Điểm đến:</strong> Đà Lạt</p>
-              <p><strong>Thời gian:</strong> {tourData.duration}</p>
-              <p><strong>Phương tiện:</strong> {tourData.transport === 'plane' ? 'Máy bay' : 'Xe'}</p>
-              <p><strong>Mã tour:</strong> TOUR202847</p>
+              <p><strong>Khởi hành:</strong> {tour.departure}</p>
+              <p><strong>Điểm đến:</strong> {tour.destination}</p>
+              <p><strong>Thời gian:</strong> {tour.duration}</p>
+              <p><strong>Phương tiện:</strong> {tour.transport === 'plane' ? 'Máy bay' : 'Xe'}</p>
+              <p><strong>Mã tour:</strong> {tour.tourCode}</p>
+              <p><strong>Trạng thái:</strong> {tour.availabilityStatus || 'Chưa xác định'}</p>
             </Card>
           </Col>
         </Row>
 
-        {/* Highlights */}
+        {/* Trải nghiệm */}
         <Row className="mb-4">
           <Col md={8}>
             <Card className="p-3 shadow-sm">
               <h4>Trải nghiệm thú vị trong tour</h4>
               <ul>
-                {tourData.highlights.map((highlight, index) => (
-                  <li key={index}>{highlight}</li>
+                {tour.experiences?.map((item, index) => (
+                  <li key={index}>{item}</li>
                 ))}
               </ul>
             </Card>
           </Col>
         </Row>
 
-        {/* Program Details */}
+        {/* Chương trình tour */}
         <Row className="mb-4">
           <Col md={8}>
             <Card className="p-3 shadow-sm">
               <h4>Chương trình tour</h4>
-              {tourData.itinerary.map((day, index) => (
+              {tour.schedule?.map((item, index) => (
                 <div key={index} className="mb-3">
-                  <h5>Ngày {day.day}</h5>
-                  <p>{day.description}</p>
+                  <h5>Ngày {item.dayNumber}</h5>
+                  <p>{item.description}</p>
                 </div>
               ))}
             </Card>
           </Col>
         </Row>
 
-        {/* Schedule and Pricing */}
+        {/* Lịch khởi hành & giá */}
         <Row className="mb-4">
           <Col md={8}>
             <Card className="p-3 shadow-sm">
@@ -219,52 +172,38 @@ const TourDetail = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {tourData.schedule.map((item, index) => (
+                  {tour.departureSchedules?.map((item, index) => (
                     <tr key={index}>
-                      <td>{item.date}</td>
-                      <td>{item.price}</td>
+                      <td>{new Date(item.departureDate).toLocaleDateString('vi-VN')}</td>
+                      <td>{parseInt(item.price).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
                       <td>{item.status}</td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
-              <Button variant="link">Xem thêm</Button>
+              {/* Bạn có thể thêm nút Xem thêm nếu cần */}
             </Card>
           </Col>
         </Row>
 
-        {/* Useful Information */}
+        {/* Thông tin lưu ý */}
         <Row className="mb-4">
           <Col md={8}>
             <Card className="p-3 shadow-sm">
               <h4>Thông tin cần lưu ý</h4>
               <ul>
-                {tourData.usefulInfo.map((info, index) => (
-                  <li key={index}>{info}</li>
+                {tour.notes?.map((note, index) => (
+                  <li key={index}>{note}</li>
                 ))}
               </ul>
             </Card>
           </Col>
         </Row>
 
-        {/* Related Tours */}
-        <Row className="mb-4">
-          <Col md={12}>
-            <h3 className='mb-5'>Tours du lịch liên quan</h3>
-            <Row className='mt-6'>
-              {relatedTours.map((tour, index) => (
-                <Col md={4} key={index} className="mb-4">
-                  <TourCard tour={tour} />
-                </Col>
-              ))}
-            </Row>
-          </Col>
-        </Row>
+        {/* Có thể thêm phần Tours liên quan nếu muốn */}
 
-      
       </Container>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

@@ -20,6 +20,8 @@ import ForgotPassword from './form/ForgotPassword';
 import RegisterForm from './form/Register';
 import LoginForm from './form/LoginForm';
 import ChatWidget from './components/ChatWidget';
+import AddTourForm from './components/admin/AddTourForm';
+import EditTour from './components/admin/EditTour';
 
 
 
@@ -33,14 +35,16 @@ function App() {
         <Route path="/home" element={<Index />} />
         {/* Trang chi tiết khách sạn */}
         <Route path="/hotel" element={<HotelDetail />} />
-        <Route path="/tour-detail" element={<TourDetail />} />
+        <Route path="/tour-detail/:id" element={<TourDetail />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm/>} />
         <Route path="/ticket-detail" element={<TicketDetail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/profile" element={<Profile/>} />
+             <Route path="/addtour" element={<AddTourForm/>} />
       {/*  Admin*/}
         <Route path="/admin/*" element={<AdminRouter />} />
+        <Route path="/admin/tours/edit/:id" element={<EditTour />} />
       </Routes>
     </Router>
          <ChatWidget  />
