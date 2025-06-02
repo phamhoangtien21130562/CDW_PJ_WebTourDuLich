@@ -20,6 +20,8 @@ public class Order {
     private Instant orderDate;
     private OrderStatus status;
 
+
+
     // ✅ GETTERS/SETTERS ĐẦY ĐỦ
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
