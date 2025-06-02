@@ -19,24 +19,35 @@ import {
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
-    const [totalOrders, setTotalOrders] = useState<number>(0);
+    const [statsData, setStatsData] = useState({
+        totalUsers: 0,
+        totalTours: 0,
+        totalOrders: 0,
+        totalRevenue: 0,
+    });
 
     useEffect(() => {
-        axios.get("http://localhost:8080/api/orders/stats")
+        axios.get("http://localhost:8080/api/dashboard/stats")
             .then(res => {
-                setTotalOrders(res.data.totalOrders);
+                const data = res.data;
+                setStatsData({
+                    totalUsers: data.totalUsers,
+                    totalTours: data.totalTours,
+                    totalOrders: data.totalOrders,
+                    totalRevenue: data.totalRevenue,
+                });
             })
             .catch(err => {
-                console.error("Lỗi lấy thống kê đơn hàng:", err);
+                console.error("Lỗi lấy thống kê dashboard:", err);
             });
     }, []);
 
-    // Dữ liệu thống kê
+    // Dữ liệu thống kê tổng
     const stats = [
-        { title: "Tổng Đơn hàng", value: totalOrders, icon: <Cart size={32} />, color: "primary" },
-        { title: "Tổng Người dùng", value: 3200, icon: <People size={32} />, color: "success" },
-        { title: "Tổng Tour", value: 85, icon: <Globe size={32} />, color: "warning" },
-        { title: "Doanh thu", value: "$85,000", icon: <CurrencyDollar size={32} />, color: "danger" },
+        { title: "Tổng Đơn hàng", value: statsData.totalOrders, icon: <Cart size={32} />, color: "primary" },
+        { title: "Tổng Người dùng", value: statsData.totalUsers, icon: <People size={32} />, color: "success" },
+        { title: "Tổng Tour", value: statsData.totalTours, icon: <Globe size={32} />, color: "warning" },
+        { title: "Doanh thu", value: `$${Number(statsData.totalRevenue).toLocaleString()}`, icon: <CurrencyDollar size={32} />, color: "danger" },
     ];
 
     // Dữ liệu biểu đồ đơn hàng theo tháng (giả lập)
@@ -60,7 +71,7 @@ const Dashboard = () => {
         { id: "ORD004", customer: "Phạm Văn D", amount: "$450", status: "Đã xử lý" },
     ];
 
-    // Trạng thái badge
+    // Badge màu trạng thái đơn hàng
     const getStatusBadge = (status: string) => {
         switch (status) {
             case "Đã xử lý":
@@ -73,6 +84,12 @@ const Dashboard = () => {
                 return <Badge bg="secondary">{status}</Badge>;
         }
     };
+    const formatCurrency = (amount: number) =>
+        amount.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND"
+        });
+
 
     return (
         <Container className="mt-4">
