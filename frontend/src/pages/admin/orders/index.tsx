@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, Button, Container, Card, Badge } from "react-bootstrap";
-import { Eye, XCircle } from "react-bootstrap-icons";
+import { Eye, XCircle, CheckCircle } from "react-bootstrap-icons";
 
 // ✅ Định nghĩa kiểu Order
 interface Order {
-    id: string;
+    _id?: string;
+    id?: string;
     customerName: string;
     customerEmail: string;
     totalAmount: number;
@@ -14,7 +15,6 @@ interface Order {
 }
 
 const Orders = () => {
-    // ✅ Khai báo kiểu dữ liệu cho state
     const [orders, setOrders] = useState<Order[]>([]);
 
     useEffect(() => {
@@ -24,6 +24,7 @@ const Orders = () => {
     const fetchOrders = async () => {
         try {
             const response = await axios.get("http://localhost:8080/api/orders");
+            console.log("Kết quả đơn hàng từ server:", response.data);
             setOrders(response.data);
         } catch (error) {
             console.error("Lỗi khi tải danh sách đơn hàng:", error);
@@ -31,12 +32,23 @@ const Orders = () => {
     };
 
     const cancelOrder = async (id: string) => {
+        console.log("Gửi yêu cầu huỷ với ID:", id);
         if (!window.confirm("Bạn có chắc muốn hủy đơn hàng này?")) return;
         try {
             await axios.put(`http://localhost:8080/api/orders/${id}/cancel`);
-            fetchOrders(); // reload lại danh sách
+            fetchOrders();
         } catch (error) {
             console.error("Hủy đơn hàng thất bại:", error);
+        }
+    };
+
+    const completeOrder = async (id: string) => {
+        if (!window.confirm("Xác nhận đã hoàn tất đơn hàng này?")) return;
+        try {
+            await axios.put(`http://localhost:8080/api/orders/${id}/complete`);
+            fetchOrders();
+        } catch (error) {
+            console.error("Xác nhận đơn hàng thất bại:", error);
         }
     };
 
@@ -77,8 +89,7 @@ const Orders = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {/* ✅ Không còn dùng any nữa */}
-                        {orders.map((order: Order, index: number) => (
+                        {orders.map((order, index) => (
                             <tr key={order.id}>
                                 <td>{index + 1}</td>
                                 <td>{order.customerName}</td>
@@ -90,14 +101,25 @@ const Orders = () => {
                                     <Button variant="info" size="sm" className="me-1">
                                         <Eye size={16} /> Xem
                                     </Button>
-                                    {order.status !== "CANCELLED" && (
-                                        <Button
-                                            variant="danger"
-                                            size="sm"
-                                            onClick={() => cancelOrder(order.id)}
-                                        >
-                                            <XCircle size={16} /> Hủy
-                                        </Button>
+
+                                    {order.status === "PENDING" && (
+                                        <>
+                                            <Button
+                                                variant="success"
+                                                size="sm"
+                                                className="me-1"
+                                                onClick={() => completeOrder(order.id || order._id!)}
+                                            >
+                                                <CheckCircle size={16} /> Hoàn tất
+                                            </Button>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => cancelOrder(order.id || order._id!)}
+                                            >
+                                                <XCircle size={16} /> Hủy
+                                            </Button>
+                                        </>
                                     )}
                                 </td>
                             </tr>
