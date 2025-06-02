@@ -27,10 +27,9 @@ public class Config {
 	        http
 	          .cors(Customizer.withDefaults())  // Kích hoạt CORS
 	          .csrf(csrf -> csrf.disable())     // Thường tắt CSRF khi dùng JWT hoặc REST API
-	          .authorizeHttpRequests(auth -> auth
-	        		  .requestMatchers("/api/auth/**", "/users/**","/api/tours/**", "/loadImage").permitAll()
-	              .anyRequest().authenticated()
-	          )
+                    .authorizeHttpRequests(auth -> auth
+                            .anyRequest().permitAll()
+                    )
 	          .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // Không lưu session (JWT)
 
 	        return http.build();

@@ -100,6 +100,9 @@ public class UserController {
         }
 
         User user = userOpt.get();
+        if (user.isLocked()) {
+            return ResponseEntity.status(403).body("🔒 Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+        }
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             return ResponseEntity.status(401).body("❌ Mật khẩu không đúng.");
