@@ -1,22 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Table, Badge } from "react-bootstrap";
 import { Cart, People, Globe, CurrencyDollar } from "react-bootstrap-icons";
 import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+import axios from "axios";
+
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+} from "chart.js";
 
 // Đăng ký các thành phần của Chart.js
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
+    const [totalOrders, setTotalOrders] = useState<number>(0);
+
+    useEffect(() => {
+        axios.get("http://localhost:8080/api/orders/stats")
+            .then(res => {
+                setTotalOrders(res.data.totalOrders);
+            })
+            .catch(err => {
+                console.error("Lỗi lấy thống kê đơn hàng:", err);
+            });
+    }, []);
+
     // Dữ liệu thống kê
     const stats = [
-        { title: "Tổng Đơn hàng", value: 1200, icon: <Cart size={32} />, color: "primary" },
+        { title: "Tổng Đơn hàng", value: totalOrders, icon: <Cart size={32} />, color: "primary" },
         { title: "Tổng Người dùng", value: 3200, icon: <People size={32} />, color: "success" },
         { title: "Tổng Tour", value: 85, icon: <Globe size={32} />, color: "warning" },
         { title: "Doanh thu", value: "$85,000", icon: <CurrencyDollar size={32} />, color: "danger" },
     ];
 
-    // Dữ liệu biểu đồ đơn hàng theo tháng
+    // Dữ liệu biểu đồ đơn hàng theo tháng (giả lập)
     const orderData = {
         labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6"],
         datasets: [
@@ -29,7 +52,7 @@ const Dashboard = () => {
         ],
     };
 
-    // Dữ liệu danh sách đơn hàng gần đây
+    // Danh sách đơn hàng gần đây (giả lập)
     const recentOrders = [
         { id: "ORD001", customer: "Nguyễn Văn A", amount: "$500", status: "Đã xử lý" },
         { id: "ORD002", customer: "Trần Thị B", amount: "$350", status: "Chờ xử lý" },
@@ -37,7 +60,7 @@ const Dashboard = () => {
         { id: "ORD004", customer: "Phạm Văn D", amount: "$450", status: "Đã xử lý" },
     ];
 
-    // Hàm hiển thị badge trạng thái đơn hàng
+    // Trạng thái badge
     const getStatusBadge = (status: string) => {
         switch (status) {
             case "Đã xử lý":
@@ -68,7 +91,7 @@ const Dashboard = () => {
                 ))}
             </Row>
 
-            {/* Biểu đồ & Danh sách đơn hàng */}
+            {/* Biểu đồ & Đơn hàng gần đây */}
             <Row>
                 <Col md={8}>
                     <Card className="shadow-sm">

@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Order;
+import com.example.demo.model.OrderStatsDTO;
 import com.example.demo.model.OrderStatus;
 import com.example.demo.reposity.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,5 +53,10 @@ public class OrderController {
         order.setStatus((OrderStatus.COMPLETED));
         orderRepository.save(order);
         return ResponseEntity.ok("Đơn hàng đã hoàn tất.");
+    }
+    @GetMapping("/stats")
+    public ResponseEntity<OrderStatsDTO> getOrderStats() {
+        long total = orderRepository.count(); // đếm tất cả đơn hàng
+        return ResponseEntity.ok(new OrderStatsDTO(total));
     }
 }
