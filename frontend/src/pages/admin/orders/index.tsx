@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Table, Button, Container, Card, Badge } from "react-bootstrap";
+import {
+    Table,
+    Button,
+    Container,
+    Card,
+    Badge,
+    Modal
+} from "react-bootstrap";
 import { Eye, XCircle, CheckCircle } from "react-bootstrap-icons";
 
 // ✅ Định nghĩa kiểu Order
+interface OrderItem {
+    tourId: string;
+    tourName: string;
+    quantity: number;
+}
+
 interface Order {
     _id?: string;
     id?: string;
@@ -12,10 +25,14 @@ interface Order {
     totalAmount: number;
     orderDate: string;
     status: "PENDING" | "COMPLETED" | "CANCELLED" | string;
+    items: OrderItem[];
 }
+
 
 const Orders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [showDetails, setShowDetails] = useState(false);
 
     useEffect(() => {
         fetchOrders();
@@ -24,7 +41,6 @@ const Orders = () => {
     const fetchOrders = async () => {
         try {
             const response = await axios.get("http://localhost:8080/api/orders");
-            console.log("Kết quả đơn hàng từ server:", response.data);
             setOrders(response.data);
         } catch (error) {
             console.error("Lỗi khi tải danh sách đơn hàng:", error);
@@ -32,7 +48,6 @@ const Orders = () => {
     };
 
     const cancelOrder = async (id: string) => {
-        console.log("Gửi yêu cầu huỷ với ID:", id);
         if (!window.confirm("Bạn có chắc muốn hủy đơn hàng này?")) return;
         try {
             await axios.put(`http://localhost:8080/api/orders/${id}/cancel`);
@@ -50,6 +65,12 @@ const Orders = () => {
         } catch (error) {
             console.error("Xác nhận đơn hàng thất bại:", error);
         }
+    };
+
+    const viewOrderDetails = (order: Order) => {
+        console.log("Xem chi tiết đơn hàng:", order);
+        setSelectedOrder(order);
+        setShowDetails(true);
     };
 
     const getStatusBadge = (status: string) => {
@@ -90,7 +111,7 @@ const Orders = () => {
                         </thead>
                         <tbody>
                         {orders.map((order, index) => (
-                            <tr key={order.id}>
+                            <tr key={order.id || order._id}>
                                 <td>{index + 1}</td>
                                 <td>{order.customerName}</td>
                                 <td>{order.customerEmail}</td>
@@ -98,7 +119,12 @@ const Orders = () => {
                                 <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                                 <td>{getStatusBadge(order.status)}</td>
                                 <td className="text-center">
-                                    <Button variant="info" size="sm" className="me-1">
+                                    <Button
+                                        variant="info"
+                                        size="sm"
+                                        className="me-1"
+                                        onClick={() => viewOrderDetails(order)}
+                                    >
                                         <Eye size={16} /> Xem
                                     </Button>
 
@@ -128,6 +154,55 @@ const Orders = () => {
                     </Table>
                 </Card.Body>
             </Card>
+
+            {/* Modal hiển thị chi tiết đơn hàng */}
+            <Modal show={showDetails} onHide={() => setShowDetails(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Chi tiết đơn hàng</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedOrder && (
+                        <>
+                            <p><strong>Khách hàng:</strong> {selectedOrder.customerName}</p>
+                            <p><strong>Email:</strong> {selectedOrder.customerEmail}</p>
+                            <p><strong>Số tiền:</strong> {formatCurrency(selectedOrder.totalAmount)}</p>
+                            <p><strong>Ngày đặt:</strong> {new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
+                            <p><strong>Trạng thái:</strong> {getStatusBadge(selectedOrder.status)}</p>
+
+                            <hr />
+                            <h6>Danh sách tour đã đặt:</h6>
+                            {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                                <Table striped size="sm" bordered>
+                                    <thead>
+                                    <tr>
+                                        <th>Mã tour</th>
+                                        <th>Tên tour</th>
+                                        <th>Số lượng</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {selectedOrder.items.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>{item.tourId}</td>
+                                            <td>{item.tourName}</td>
+                                            <td>{item.quantity}</td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </Table>
+                            ) : (
+                                <p className="text-muted">Không có dữ liệu tour.</p>
+                            )}
+                        </>
+                    )}
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDetails(false)}>
+                        Đóng
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };

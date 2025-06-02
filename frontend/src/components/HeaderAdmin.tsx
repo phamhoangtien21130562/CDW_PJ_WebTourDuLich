@@ -123,6 +123,13 @@ const Header: React.FC<HeaderProps> = () => {
             >
               Tours
             </Nav.Link>
+            {/*<Nav.Link*/}
+            {/*    as={Link}*/}
+            {/*    to="/admin/hotels"*/}
+            {/*    className={`fw-semibold px-3 menu-link ${activeTab === 'tours' ? 'active' : ''}`}*/}
+            {/*>*/}
+            {/*  Khách sạn*/}
+            {/*</Nav.Link>*/}
           </Nav>
         </Navbar.Brand>
 
