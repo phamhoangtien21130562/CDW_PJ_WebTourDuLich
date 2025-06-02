@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 
 @Document(collection = "orders")
 public class Order {
@@ -19,10 +20,14 @@ public class Order {
     private double totalAmount;
     private Instant orderDate;
     private OrderStatus status;
+    private List<OrderItem> items;
 
-
-
-    // ✅ GETTERS/SETTERS ĐẦY ĐỦ
+    public List<OrderItem> getItems() {
+        return items;
+    }
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
