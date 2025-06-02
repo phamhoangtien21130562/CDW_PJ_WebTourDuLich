@@ -1,51 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Table, Button, Container, Card, Badge } from "react-bootstrap";
 import { Eye, XCircle } from "react-bootstrap-icons";
 
-const Orders = () => {
-    // Dữ liệu mẫu
-    const orders = [
-        {
-            id: 101,
-            customer: "Nguyễn Văn A",
-            email: "nguyenvana@example.com",
-            amount: 2500000,
-            status: "Đang xử lý",
-            date: "2025-03-20",
-        },
-        {
-            id: 102,
-            customer: "Trần Thị B",
-            email: "tranthib@example.com",
-            amount: 4500000,
-            status: "Hoàn thành",
-            date: "2025-03-21",
-        },
-        {
-            id: 103,
-            customer: "Lê Công C",
-            email: "lecongc@example.com",
-            amount: 1500000,
-            status: "Hủy",
-            date: "2025-03-22",
-        },
-    ];
+// ✅ Định nghĩa kiểu Order
+interface Order {
+    id: string;
+    customerName: string;
+    customerEmail: string;
+    totalAmount: number;
+    orderDate: string;
+    status: "PENDING" | "COMPLETED" | "CANCELLED" | string;
+}
 
-    // Hàm hiển thị badge trạng thái đơn hàng
+const Orders = () => {
+    // ✅ Khai báo kiểu dữ liệu cho state
+    const [orders, setOrders] = useState<Order[]>([]);
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const fetchOrders = async () => {
+        try {
+            const response = await axios.get("http://localhost:8080/api/orders");
+            setOrders(response.data);
+        } catch (error) {
+            console.error("Lỗi khi tải danh sách đơn hàng:", error);
+        }
+    };
+
+    const cancelOrder = async (id: string) => {
+        if (!window.confirm("Bạn có chắc muốn hủy đơn hàng này?")) return;
+        try {
+            await axios.put(`http://localhost:8080/api/orders/${id}/cancel`);
+            fetchOrders(); // reload lại danh sách
+        } catch (error) {
+            console.error("Hủy đơn hàng thất bại:", error);
+        }
+    };
+
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case "Đang xử lý":
-                return <Badge bg="warning">🟠 {status}</Badge>;
-            case "Hoàn thành":
-                return <Badge bg="success">🟢 {status}</Badge>;
-            case "Hủy":
-                return <Badge bg="danger">🔴 {status}</Badge>;
+            case "PENDING":
+                return <Badge bg="warning">🟠 Đang xử lý</Badge>;
+            case "COMPLETED":
+                return <Badge bg="success">🟢 Hoàn thành</Badge>;
+            case "CANCELLED":
+                return <Badge bg="danger">🔴 Hủy</Badge>;
             default:
                 return <Badge bg="secondary">{status}</Badge>;
         }
     };
 
-    // Hàm định dạng tiền VNĐ
     const formatCurrency = (amount: number) => {
         return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
     };
@@ -70,20 +77,25 @@ const Orders = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {orders.map((order, index) => (
+                        {/* ✅ Không còn dùng any nữa */}
+                        {orders.map((order: Order, index: number) => (
                             <tr key={order.id}>
                                 <td>{index + 1}</td>
-                                <td>{order.customer}</td>
-                                <td>{order.email}</td>
-                                <td>{formatCurrency(order.amount)}</td>
-                                <td>{order.date}</td>
+                                <td>{order.customerName}</td>
+                                <td>{order.customerEmail}</td>
+                                <td>{formatCurrency(order.totalAmount)}</td>
+                                <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                                 <td>{getStatusBadge(order.status)}</td>
                                 <td className="text-center">
                                     <Button variant="info" size="sm" className="me-1">
                                         <Eye size={16} /> Xem
                                     </Button>
-                                    {order.status !== "Hủy" && (
-                                        <Button variant="danger" size="sm">
+                                    {order.status !== "CANCELLED" && (
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => cancelOrder(order.id)}
+                                        >
                                             <XCircle size={16} /> Hủy
                                         </Button>
                                     )}
