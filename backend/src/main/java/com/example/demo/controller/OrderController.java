@@ -38,7 +38,7 @@ public class OrderController {
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
         Order order = opt.get();
-        order.setStatus(OrderStatus.CANCELLED);
+        order.setStatus((OrderStatus.CANCELLED));
         orderRepository.save(order);
         return ResponseEntity.ok("Đã huỷ đơn hàng.");
     }
@@ -49,7 +49,7 @@ public class OrderController {
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
         Order order = opt.get();
-        order.setStatus(OrderStatus.COMPLETED);
+        order.setStatus((OrderStatus.COMPLETED));
         orderRepository.save(order);
         return ResponseEntity.ok("Đơn hàng đã hoàn tất.");
     }
