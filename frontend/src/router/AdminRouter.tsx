@@ -4,8 +4,9 @@ import Dashboard from "../pages/admin/dashboard/index.tsx";
 import Users from "../pages/admin/users/index.tsx";
 import Orders from "../pages/admin/orders/index.tsx";
 import Tours from "../pages/admin/tours/index.tsx";
-import Hotels from "../pages/admin/hotels/index.tsx"
+
 import React from "react";
+import Categories from "../components/admin/Categories.tsx";
 
 const AdminRouter = () => {
     return (
@@ -15,6 +16,7 @@ const AdminRouter = () => {
                 <Route path="users" element={<Users />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="tours" element={<Tours />} />
+                   <Route path="category" element={<Categories />} />
                 {/*<Route path="hotels" element={<Hotels />} />*/}
             </Route>
         </Routes>

@@ -32,6 +32,7 @@ interface TourValues {
   departureSchedules: { departureDate: string; price: string; status: string }[];
   notes: string[];
   subImageUrls: string[];
+  categoryId: string; // Danh mục
 }
 
 const EditTour: React.FC = () => {
@@ -45,34 +46,46 @@ const EditTour: React.FC = () => {
   // Sub images state and previews
   const [subImageFiles, setSubImageFiles] = useState<(File | null)[]>([]);
   const [subImagePreviews, setSubImagePreviews] = useState<string[]>([]);
+const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
 
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/categories");
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Lỗi khi tải danh mục:", error);
+    }
+  };
+  fetchCategories();
+}, []);
   useEffect(() => {
     axios
       .get(`http://localhost:8080/api/tours/${id}`)
       .then((res) => {
         const data = res.data as TourValues & { mainImageUrl?: string; subImageUrls?: string[] };
         // Load initial values from API
-        setInitialValues({
-          title: data.title || "",
-          tourCode: data.tourCode || "",
-          departure: data.departure || "",
-          destination: data.destination || "",
-          duration: data.duration || "",
-          transport: data.transport || "",
-          price: data.price || "",
-          startDate: data.startDate || "",
-          endDate: data.endDate || "",
-          deleted: data.deleted || false,
-          availabilityStatus: data.availabilityStatus || "Còn chỗ",
-          experiences: data.experiences && data.experiences.length > 0 ? data.experiences : [""],
-          schedule: data.schedule && data.schedule.length > 0 ? data.schedule : [{ dayNumber: 1, description: "" }],
-          departureSchedules:
-            data.departureSchedules && data.departureSchedules.length > 0
-              ? data.departureSchedules
-              : [{ departureDate: "", price: "", status: "" }],
-          notes: data.notes && data.notes.length > 0 ? data.notes : [""],
-          subImageUrls: data.subImageUrls && data.subImageUrls.length > 0 ? data.subImageUrls : [""],
-        });
+       setInitialValues({
+  title: data.title || "",
+  tourCode: data.tourCode || "",
+  departure: data.departure || "",
+  destination: data.destination || "",
+  duration: data.duration || "",
+  transport: data.transport || "",
+  price: data.price || "",
+  startDate: data.startDate || "",
+  endDate: data.endDate || "",
+  deleted: data.deleted || false,
+  availabilityStatus: data.availabilityStatus || "Còn chỗ",
+  experiences: data.experiences && data.experiences.length > 0 ? data.experiences : [""],
+  schedule: data.schedule && data.schedule.length > 0 ? data.schedule : [{ dayNumber: 1, description: "" }],
+  departureSchedules: data.departureSchedules && data.departureSchedules.length > 0
+    ? data.departureSchedules
+    : [{ departureDate: "", price: "", status: "" }],
+  notes: data.notes && data.notes.length > 0 ? data.notes : [""],
+  subImageUrls: data.subImageUrls && data.subImageUrls.length > 0 ? data.subImageUrls : [""],
+  categoryId: data.categoryId || "", // Lấy danh mục tour
+});
 
         // Main image preview from backend url if any
         if (data.mainImageUrl) {
@@ -181,7 +194,14 @@ const EditTour: React.FC = () => {
     setSubImageFiles([...subImageFiles, null]);
     setSubImagePreviews([...subImagePreviews, ""]);
   };
-
+ // Function to calculate duration (days and nights)
+  const calculateDuration = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const timeDifference = end.getTime() - start.getTime();
+    const days = timeDifference / (1000 * 3600 * 24); // Convert milliseconds to days
+    return `${days} ngày ${days - 1} đêm`; // return days and nights
+  };
   const handleRemoveSubImage = (
     index: number,
     values: any,
@@ -203,7 +223,7 @@ const EditTour: React.FC = () => {
     remove(index);
   };
 
-  return (
+   return (
     <Container className="my-4">
       <Card>
         <Card.Body>
@@ -278,7 +298,12 @@ const EditTour: React.FC = () => {
                 <Row className="mb-3">
                   <Col md={6}>
                     <BootstrapForm.Label>Thời gian</BootstrapForm.Label>
-                    <Field name="duration" className="form-control" placeholder="Thời gian tour" />
+                    <Field
+                      name="duration"
+                      className="form-control"
+                      value={values.duration}
+                      readOnly
+                    />
                     <ErrorMessage name="duration" component="div" className="text-danger" />
                   </Col>
                   <Col md={6}>
@@ -292,12 +317,28 @@ const EditTour: React.FC = () => {
                 <Row className="mb-3">
                   <Col md={4}>
                     <BootstrapForm.Label>Ngày khởi hành</BootstrapForm.Label>
-                    <Field type="date" name="startDate" className="form-control" />
+                    <Field
+                      type="date"
+                      name="startDate"
+                      className="form-control"
+                      onChange={(e) => {
+                        setFieldValue("startDate", e.target.value);
+                        setFieldValue("duration", calculateDuration(e.target.value, values.endDate));
+                      }}
+                    />
                     <ErrorMessage name="startDate" component="div" className="text-danger" />
                   </Col>
                   <Col md={4}>
                     <BootstrapForm.Label>Ngày kết thúc</BootstrapForm.Label>
-                    <Field type="date" name="endDate" className="form-control" />
+                    <Field
+                      type="date"
+                      name="endDate"
+                      className="form-control"
+                      onChange={(e) => {
+                        setFieldValue("endDate", e.target.value);
+                        setFieldValue("duration", calculateDuration(values.startDate, e.target.value));
+                      }}
+                    />
                     <ErrorMessage name="endDate" component="div" className="text-danger" />
                   </Col>
                   <Col md={4}>
@@ -311,14 +352,24 @@ const EditTour: React.FC = () => {
                 </Row>
 
                 <hr />
-
                 {/* Ảnh chính */}
                 <Row className="mb-4">
                   <Col md={12}>
                     <BootstrapForm.Label>Ảnh Chính</BootstrapForm.Label>
-                    <input type="file" accept="image/*" className="form-control" onChange={handleMainImageChange} />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="form-control"
+                      onChange={handleMainImageChange}
+                    />
                     {mainImagePreview && (
-                      <Image src={mainImagePreview} thumbnail alt="Ảnh chính" className="mt-2" style={{ maxHeight: "200px" }} />
+                      <Image
+                        src={mainImagePreview}
+                        thumbnail
+                        alt="Ảnh chính"
+                        className="mt-2"
+                        style={{ maxHeight: "200px" }}
+                      />
                     )}
                   </Col>
                 </Row>
@@ -365,7 +416,6 @@ const EditTour: React.FC = () => {
                 </FieldArray>
 
                 <hr />
-
                 {/* Trải nghiệm thú vị */}
                 <h3>Trải Nghiệm Thú Vị</h3>
                 <FieldArray name="experiences">
@@ -374,11 +424,19 @@ const EditTour: React.FC = () => {
                       {values.experiences.map((_, i) => (
                         <Row key={i} className="align-items-center mb-2">
                           <Col md={10}>
-                            <Field name={`experiences[${i}]`} className="form-control" placeholder={`Trải nghiệm thứ ${i + 1}`} />
+                            <Field
+                              name={`experiences[${i}]`}
+                              className="form-control"
+                              placeholder={`Trải nghiệm thứ ${i + 1}`}
+                            />
                             <ErrorMessage name={`experiences[${i}]`} component="div" className="text-danger" />
                           </Col>
                           <Col md={2}>
-                            <Button variant="danger" onClick={() => remove(i)} disabled={values.experiences.length === 1}>
+                            <Button
+                              variant="danger"
+                              onClick={() => remove(i)}
+                              disabled={values.experiences.length === 1}
+                            >
                               Xóa
                             </Button>
                           </Col>
@@ -392,107 +450,30 @@ const EditTour: React.FC = () => {
                 </FieldArray>
 
                 <hr />
-
-                {/* Chương trình tour */}
-                <h3>Chương Trình Tour</h3>
-                <FieldArray name="schedule">
-                  {({ push, remove }) => (
-                    <>
-                      {values.schedule.map((day, i) => (
-                        <Row key={i} className="align-items-center mb-2">
-                          <Col md={1}>
-                            <strong>Ngày {day.dayNumber}</strong>
-                          </Col>
-                          <Col md={9}>
-                            <Field
-                              as="textarea"
-                              name={`schedule[${i}].description`}
-                              className="form-control"
-                              placeholder="Mô tả chương trình"
-                            />
-                            <ErrorMessage name={`schedule[${i}].description`} component="div" className="text-danger" />
-                          </Col>
-                          <Col md={2}>
-                            <Button variant="danger" onClick={() => remove(i)} disabled={values.schedule.length === 1}>
-                              Xóa
-                            </Button>
-                          </Col>
-                        </Row>
+                {/* Danh mục */}
+                <Row className="mb-3">
+                  <Col md={12}>
+                    <BootstrapForm.Label>Danh mục</BootstrapForm.Label>
+                    <Field
+                      as="select"
+                      name="categoryId"
+                      className="form-control"
+                      value={values.categoryId}
+                      onChange={(e: any) => setFieldValue("categoryId", e.target.value)} // Lưu giá trị đã chọn
+                    >
+                      <option value="">Chọn danh mục</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
                       ))}
-                      <Button variant="primary" onClick={() => push({ dayNumber: values.schedule.length + 1, description: "" })}>
-                        Thêm Ngày
-                      </Button>
-                    </>
-                  )}
-                </FieldArray>
+                    </Field>
+                    <ErrorMessage name="categoryId" component="div" className="text-danger" />
+                  </Col>
+                </Row>
 
                 <hr />
-
-                {/* Lịch khởi hành & giá tour */}
-                <h3>Lịch Khởi Hành & Giá Tour</h3>
-                <FieldArray name="departureSchedules">
-                  {({ push, remove }) => (
-                    <>
-                      {values.departureSchedules.map((_, i) => (
-                        <Row key={i} className="align-items-center mb-3">
-                          <Col md={3}>
-                            <BootstrapForm.Label>Ngày khởi hành</BootstrapForm.Label>
-                            <Field type="date" name={`departureSchedules[${i}].departureDate`} className="form-control" />
-                            <ErrorMessage name={`departureSchedules[${i}].departureDate`} component="div" className="text-danger" />
-                          </Col>
-                          <Col md={3}>
-                            <BootstrapForm.Label>Giá</BootstrapForm.Label>
-                            <Field name={`departureSchedules[${i}].price`} className="form-control" placeholder="Ví dụ: 9.990.000 VNĐ" />
-                            <ErrorMessage name={`departureSchedules[${i}].price`} component="div" className="text-danger" />
-                          </Col>
-                          <Col md={3}>
-                            <BootstrapForm.Label>Trạng thái</BootstrapForm.Label>
-                            <Field name={`departureSchedules[${i}].status`} className="form-control" placeholder="Ví dụ: Lịch Hàng Tuần" />
-                            <ErrorMessage name={`departureSchedules[${i}].status`} component="div" className="text-danger" />
-                          </Col>
-                          <Col md={3} className="d-flex align-items-end">
-                            <Button variant="danger" onClick={() => remove(i)} disabled={values.departureSchedules.length === 1}>
-                              Xóa
-                            </Button>
-                          </Col>
-                        </Row>
-                      ))}
-                      <Button variant="primary" onClick={() => push({ departureDate: "", price: "", status: "" })}>
-                        Thêm Lịch Khởi Hành
-                      </Button>
-                    </>
-                  )}
-                </FieldArray>
-
-                <hr />
-
-                {/* Thông tin cần lưu ý */}
-                <h3>Thông Tin Cần Lưu Ý</h3>
-                <FieldArray name="notes">
-                  {({ push, remove }) => (
-                    <>
-                      {values.notes.map((_, i) => (
-                        <Row key={i} className="align-items-center mb-2">
-                          <Col md={10}>
-                            <Field name={`notes[${i}]`} className="form-control" placeholder="Nhập thông tin lưu ý" />
-                            <ErrorMessage name={`notes[${i}]`} component="div" className="text-danger" />
-                          </Col>
-                          <Col md={2}>
-                            <Button variant="danger" onClick={() => remove(i)} disabled={values.notes.length === 1}>
-                              Xóa
-                            </Button>
-                          </Col>
-                        </Row>
-                      ))}
-                      <Button variant="primary" onClick={() => push("")}>
-                        Thêm Lưu Ý
-                      </Button>
-                    </>
-                  )}
-                </FieldArray>
-
-                <hr />
-
+                {/* Submit and Cancel */}
                 <div className="d-flex justify-content-start mt-3">
                   <Button variant="success me-2" type="submit" disabled={isSubmitting}>
                     Cập nhật Tour

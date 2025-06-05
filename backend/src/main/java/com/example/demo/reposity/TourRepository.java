@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface TourRepository extends MongoRepository<Tour, String> {
 	  List<Tour> findByDeletedFalse();
 
-
+	  List<Tour> findByCategoryIdAndDeletedFalse(String categoryId);
 }

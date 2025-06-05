@@ -20,7 +20,7 @@ const Tour: React.FC = () => {
 
   useEffect(() => {
     import('axios').then(({ default: axios }) => {
-      axios.get<Tour[]>('http://localhost:8080/api/tours')
+      axios.get<Tour[]>('http://localhost:8080/api/tours/category/68404fb5a0e03226d2f0ceed')
         .then(res => {
           // Nếu bạn muốn lọc tour lễ, hãy thêm logic lọc ở đây, hoặc gán nguyên data:
           setHolidayTours(res.data);

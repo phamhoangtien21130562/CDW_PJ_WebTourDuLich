@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -32,6 +32,7 @@ interface TourValues {
   departureSchedules: { departureDate: string; price: string; status: string }[];
   notes: string[];
   subImageUrls: string[];
+  categoryId: string; // Thêm trường categoryId cho danh mục
 }
 
 const AddTourForm: React.FC = () => {
@@ -40,8 +41,25 @@ const AddTourForm: React.FC = () => {
   const navigate = useNavigate();
   const [subImageFiles, setSubImageFiles] = useState<File[]>([]);
   const [subImagePreviews, setSubImagePreviews] = useState<string[]>([""]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);  // Khởi tạo mảng rỗng
+  const [firstCategory, setFirstCategory] = useState<{ id: string; name: string } | null>(null); // State để lưu danh mục 
+ 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/categories");
+        setCategories(response.data);
+         if (response.data && response.data.length > 0) {
+          setFirstCategory(response.data[0]); // Lưu danh mục đầu tiên
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
-  const validationSchema = Yup.object({
+ const validationSchema = Yup.object({
     title: Yup.string().required("Tiêu đề tour là bắt buộc"),
     tourCode: Yup.string().required("Mã tour là bắt buộc"),
     departure: Yup.string().required("Khởi hành là bắt buộc"),
@@ -50,7 +68,11 @@ const AddTourForm: React.FC = () => {
     transport: Yup.string().required("Phương tiện là bắt buộc"),
     price: Yup.string().required("Giá tour là bắt buộc"),
     startDate: Yup.string().required("Ngày khởi hành là bắt buộc"),
-    endDate: Yup.string().required("Ngày kết thúc là bắt buộc"),
+    endDate: Yup.string().required("Ngày kết thúc là bắt buộc")
+      .test('endDate', 'Ngày kết thúc phải lớn hơn ngày khởi hành', function (value) {
+        const { startDate } = this.parent;
+        return new Date(value).getTime() > new Date(startDate).getTime();
+      }),
     deleted: Yup.boolean(),
     availabilityStatus: Yup.string().required("Trạng thái tour là bắt buộc"),
     experiences: Yup.array()
@@ -76,9 +98,17 @@ const AddTourForm: React.FC = () => {
     notes: Yup.array()
       .of(Yup.string().required("Thông tin lưu ý không được bỏ trống"))
       .min(1, "Phải có ít nhất 1 lưu ý"),
+    categoryId: Yup.string().required("Danh mục là bắt buộc"),
   });
 
-  const initialValues: TourValues = {
+  const calculateDuration = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const timeDifference = end.getTime() - start.getTime();
+    const days = timeDifference / (1000 * 3600 * 24); // Số ngày
+    return `${days} ngày ${days - 1} đêm`;
+  };
+   const initialValues: TourValues = {
     title: "",
     tourCode: "",
     departure: "",
@@ -95,6 +125,7 @@ const AddTourForm: React.FC = () => {
     departureSchedules: [{ departureDate: "", price: "", status: "" }],
     notes: [""],
     subImageUrls: [""],
+    categoryId: "", // Khởi tạo giá trị mặc định cho categoryId
   };
 
   const fileToBase64 = (file: File): Promise<string> =>
@@ -280,12 +311,15 @@ const AddTourForm: React.FC = () => {
 
                 <Row className="mb-3">
                   <Col md={6}>
-                    <BootstrapForm.Label>Thời gian</BootstrapForm.Label>
-                    <Field
-                      name="duration"
-                      className="form-control"
-                      placeholder="Thời gian tour"
-                    />
+                   <BootstrapForm.Label>Thời gian</BootstrapForm.Label>
+                <Field
+      name="duration"
+      className="form-control"
+      value={values.duration}
+      readOnly
+      disabled={!values.startDate && !values.endDate} // Disable trường duration nếu chưa chọn ngày khởi hành hoặc ngày kết thúc
+    />
+              
                     <ErrorMessage
                       name="duration"
                       component="div"
@@ -309,31 +343,31 @@ const AddTourForm: React.FC = () => {
 
                 {/* Ngày khởi hành và kết thúc */}
                 <Row className="mb-3">
-                  <Col md={4}>
+               <Col md={4}>
                     <BootstrapForm.Label>Ngày khởi hành</BootstrapForm.Label>
                     <Field
                       type="date"
                       name="startDate"
                       className="form-control"
+                      onChange={(e) => {
+                        setFieldValue("startDate", e.target.value);
+                        setFieldValue("duration", calculateDuration(e.target.value, values.endDate));
+                      }}
                     />
-                    <ErrorMessage
-                      name="startDate"
-                      component="div"
-                      className="text-danger"
-                    />
+                    <ErrorMessage name="startDate" component="div" className="text-danger" />
                   </Col>
-                  <Col md={4}>
+                 <Col md={4}>
                     <BootstrapForm.Label>Ngày kết thúc</BootstrapForm.Label>
                     <Field
                       type="date"
                       name="endDate"
                       className="form-control"
+                      onChange={(e) => {
+                        setFieldValue("endDate", e.target.value);
+                        setFieldValue("duration", calculateDuration(values.startDate, e.target.value));
+                      }}
                     />
-                    <ErrorMessage
-                      name="endDate"
-                      component="div"
-                      className="text-danger"
-                    />
+                    <ErrorMessage name="endDate" component="div" className="text-danger" />
                   </Col>
                   <Col md={4}>
                     <BootstrapForm.Label>Trạng thái tour</BootstrapForm.Label>
@@ -580,6 +614,27 @@ const AddTourForm: React.FC = () => {
 
                 <hr />
 
+                  <Row className="mb-3">
+                  <Col md={12}>
+                    <BootstrapForm.Label>Danh mục</BootstrapForm.Label>
+                    <Field
+                      as="select"
+                      name="categoryId"
+                      className="form-control"
+                      value={values.categoryId}
+                      onChange={(e: any) => setFieldValue("categoryId", e.target.value)}
+                    >
+                      <option value="">Chọn danh mục</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage name="categoryId" component="div" className="text-danger" />
+                  </Col>
+                </Row>
+   <hr />
                 {/* Thông tin cần lưu ý */}
                 <h3>Thông Tin Cần Lưu Ý</h3>
                 <FieldArray name="notes">
@@ -609,6 +664,7 @@ const AddTourForm: React.FC = () => {
                             </Button>
                           </Col>
                         </Row>
+                        
                       ))}
                       <Button variant="primary" onClick={() => push("")}>
                         Thêm Lưu Ý

@@ -77,6 +77,7 @@ public class TourController {
             existingTour.setDeleted(updatedTour.getDeleted());
             existingTour.setAvailabilityStatus(updatedTour.getAvailabilityStatus());
             existingTour.setStartDate(updatedTour.getStartDate());
+            existingTour.setCategoryId(updatedTour.getCategoryId());
 
             // Nếu có ảnh chính mới, lưu và cập nhật
             if (mainImage != null && !mainImage.isEmpty()) {
@@ -104,6 +105,15 @@ public class TourController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Lỗi khi cập nhật file ảnh");
         }
+    }
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<Tour>> getToursByCategory(@PathVariable String categoryId) {
+        // Tìm các tour có categoryId tương ứng và chưa bị xóa
+        List<Tour> tours = tourRepository.findByCategoryIdAndDeletedFalse(categoryId);
+        if (tours.isEmpty()) {
+            return ResponseEntity.noContent().build(); // Nếu không có tour nào
+        }
+        return ResponseEntity.ok(tours);
     }
 
     @PostMapping(consumes = {"multipart/form-data"})
