@@ -13,7 +13,12 @@ select.rounded-0.start.form-select {
   padding-right: 15px;
   padding-left: 15px;
 }
-
+td {
+  white-space: nowrap; /* Ngăn văn bản xuống dòng */
+  overflow: hidden; /* Ẩn phần văn bản vượt quá */
+  text-overflow: ellipsis; /* Thêm dấu ba chấm "..." */
+  max-width:600px; /* Đặt chiều rộng tối đa cho td */
+}
 /* Ensure the page takes up at least the full viewport height */
 html, body {
   height: 100%;

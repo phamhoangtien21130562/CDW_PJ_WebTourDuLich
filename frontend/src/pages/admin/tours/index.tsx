@@ -92,7 +92,7 @@ const handleDelete = async (id: string) => {
     <Container className="mt-4">
       <Card className="shadow-sm">
         <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-          <h4 className="mb-0">Danh sách Tours</h4>
+          <h4 className="mb-0">Danh sách Travel</h4>
           <Button variant="light" onClick={() => navigate("/addtour")}>
             + Thêm Tour
           </Button>
@@ -102,7 +102,7 @@ const handleDelete = async (id: string) => {
             <thead className="table-dark">
               <tr>
                 <th>#</th>
-                <th>Tên Tour</th>
+                <th>Tên travel</th>
                 <th>Giá</th>
                 <th>Ngày khởi hành</th>
                 <th>Ngày kết thúc</th>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-type Tab = 'users' | 'orders' | 'tours';
+type Tab = 'users' | 'orders' | 'travel' | 'category';
 
 interface HeaderProps {}
 
@@ -40,7 +40,8 @@ const Header: React.FC<HeaderProps> = () => {
   const getActiveTab = (): Tab => {
     if (location.pathname.startsWith('/admin/users')) return 'users';
     if (location.pathname.startsWith('/admin/orders')) return 'orders';
-    if (location.pathname.startsWith('/admin/tours')) return 'tours';
+    if (location.pathname.startsWith('/admin/travel')) return 'travel';
+     if (location.pathname.startsWith('/admin/category')) return 'category';
     return 'users'; // default
   };
 
@@ -119,9 +120,16 @@ const Header: React.FC<HeaderProps> = () => {
             <Nav.Link
               as={Link}
               to="/admin/tours"
-              className={`fw-semibold px-3 menu-link ${activeTab === 'tours' ? 'active' : ''}`}
+              className={`fw-semibold px-3 menu-link ${activeTab === 'travel' ? 'active' : ''}`}
             >
-              Tours
+           Travel
+            </Nav.Link>
+             <Nav.Link
+              as={Link}
+              to="/admin/category"
+              className={`fw-semibold px-3 menu-link ${activeTab === 'category' ? 'active' : ''}`}
+            >
+             Danh mục
             </Nav.Link>
             {/*<Nav.Link*/}
             {/*    as={Link}*/}
