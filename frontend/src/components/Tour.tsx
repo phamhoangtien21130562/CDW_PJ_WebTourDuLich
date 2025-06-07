@@ -36,20 +36,7 @@ const Tour: React.FC = () => {
 
   return (
     <div className="App">
-      {/* Recently Viewed Tours Section */}
-      {/* Bạn có thể giữ phần này nguyên hoặc xoá nếu không dùng */}
-      {/* <Container className="mt-6">
-        <h3 className="mb-5">Tours du lịch bạn đã xem gần đây</h3>
-        <Row className="mt-6">
-          {recentlyViewedTours.map((tour, index) => (
-            <Col md={4} key={index} className="mb-4">
-              <TourCard tour={tour} />
-            </Col>
-          ))}
-        </Row>
-      </Container> */}
-
-      {/* Holiday Tours Section */}
+     
       <Container className="mt-5">
         <h3 className="mb-5">Tour Du Lịch Lễ</h3>
         <h5 className="text-muted">Chốt Lịch Đi, Khởi Hành Lễ Về Lễ</h5>

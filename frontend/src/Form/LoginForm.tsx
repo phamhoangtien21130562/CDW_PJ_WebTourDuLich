@@ -60,7 +60,9 @@ showToast = (message: string, variant: 'success' | 'danger') => {
    if (data.token) {
       localStorage.setItem('token', data.token);
     }
-
+        if (data.roles && data.roles[0]) {
+        localStorage.setItem('userRole', data.roles[0]);  // Lưu vai trò đầu tiên vào 'userRole'
+      }
       this.showToast(response.data, 'success');
       this.setState({ email: '', password: '' });
 
