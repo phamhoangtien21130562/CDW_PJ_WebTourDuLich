@@ -5,9 +5,11 @@ import { Container, Row, Col, Card,  Button, Form, Table } from 'react-bootstrap
 import '../../assets/css/tour.css';
 
 import Footer from '../../components/Footer';
-
+import { ToastContainer, toast } from 'react-toastify';  // Import React Toastify
+import 'react-toastify/dist/ReactToastify.css';  // Import CSS cho Toastify
 import Header from '../../components/HeaderUer';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 interface ScheduleItem {
   dayNumber: number;
@@ -37,11 +39,25 @@ interface TourDetailType {
   endDate?: string | null;
   // Thêm các trường khác nếu cần
 }
+interface JwtPayload {
+  fullName?: string;
+  sub?: string;  // thường là username/email trong sub
+  roles?: string[];
+  id?: string;
+}
 
 const TourDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();  // Lấy id từ URL
+    const { id } = useParams<{ id: string }>();
   const [tour, setTour] = useState<TourDetailType | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [numGuests, setNumGuests] = useState<number>(1);
+  const [error, setError] = useState<string | null>(null);
+
+  // Get token and user info from localStorage
+  const token = localStorage.getItem('token');
+  const isLoggedIn = token != null;
+
 
   useEffect(() => {
     if (!id) return;
@@ -52,6 +68,75 @@ const TourDetail: React.FC = () => {
         .finally(() => setLoading(false));
     });
   }, [id]);
+  function parseJwt(token: string): JwtPayload | null {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
+    }
+  }
+const handleBookTour = async () => {
+  if (!isLoggedIn) {
+    setError('Vui lòng đăng nhập để đặt tour!');
+    toast.error('Vui lòng đăng nhập để đặt tour!');
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+  const decoded = token ? parseJwt(token) : null;
+
+  if (!decoded || !decoded.id) {
+    setError('Lỗi xác thực người dùng!');
+    toast.error('Lỗi xác thực người dùng!');
+    return;
+  }
+
+  // Đảm bảo numGuests có giá trị hợp lệ
+  if (numGuests <= 0 || numGuests === null) {
+    setError('Số lượng khách phải lớn hơn 0');
+    toast.error('Số lượng khách phải lớn hơn 0');
+    return;
+  }
+
+  // Tính toán tổng giá tiền
+  const totalPrice = tour?.price * numGuests;
+  console.log('Total Price:', totalPrice);  // In tổng giá tiền ra console để kiểm tra
+
+  // Tạo dữ liệu giỏ hàng
+  const cartData = {
+    user: { id: decoded.id },  // Lấy ID người dùng từ token
+    tour: { id: tour?.id },    // Lấy ID tour từ dữ liệu tour
+    numGuests,                 // Số lượng khách
+    totalPrice,                // Tổng giá tiền
+  };
+
+  console.log('Cart Data:', cartData);  // In dữ liệu giỏ hàng ra console để kiểm tra
+
+  try {
+    // Gửi yêu cầu POST đến API để đặt tour
+    const response = await axios.post('http://localhost:8080/api/carts', cartData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    console.log('Response from API:', response);  // In phản hồi từ API để kiểm tra
+    toast.success('Đặt tour thành công!');
+  } catch (error) {
+    console.error('Lỗi khi đặt tour:', error.response?.data);
+    setError('Có lỗi xảy ra khi đặt tour!');
+    toast.error('Có lỗi xảy ra khi đặt tour!');
+  }
+};
+
 
   if (loading) return <div>Đang tải dữ liệu tour...</div>;
   if (!tour) return <div>Không tìm thấy tour.</div>;
@@ -98,15 +183,17 @@ const TourDetail: React.FC = () => {
               </h4>
               <p className="text-muted">{tour.duration}</p>
               <Form>
-                <Form.Group className="mb-3">
-                  <Form.Label>Ngày khởi hành</Form.Label>
-                  <Form.Control type="date" defaultValue={tour.startDate?.slice(0,10) || ''} />
-                </Form.Group>
-                <Form.Group className="mb-3">
+                 <Form.Group className="mb-3">
                   <Form.Label>Số lượng khách</Form.Label>
-                  <Form.Control type="number" min="1" defaultValue="1" />
+                  <Form.Control
+                    type="number"
+                    min="1"
+                    value={numGuests}
+                    onChange={(e) => setNumGuests(Number(e.target.value))}
+                  />
                 </Form.Group>
-                <Button variant="warning" className="w-100">
+                 {error && <div className="alert alert-danger">{error}</div>}
+                <Button variant="warning" className="w-100" onClick={handleBookTour}>
                   Đặt Tour
                 </Button>
               </Form>
@@ -205,6 +292,7 @@ const TourDetail: React.FC = () => {
       </Container>
 
       <Footer />
+          <ToastContainer />
     </div>
   );
 };

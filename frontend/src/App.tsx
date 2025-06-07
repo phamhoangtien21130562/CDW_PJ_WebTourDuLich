@@ -22,12 +22,16 @@ import LoginForm from './form/LoginForm';
 import ChatWidget from './components/ChatWidget';
 import AddTourForm from './components/admin/AddTourForm';
 import EditTour from './components/admin/EditTour';
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import PrivateRoute from './PrivateRoute';
 
 
 
 function App() {
   return (
    <div>
+       <Provider store={store}>
      <Router>
       <Routes>
         {/* Trang danh sách khách sạn */}
@@ -41,13 +45,15 @@ function App() {
         <Route path="/ticket-detail" element={<TicketDetail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/profile" element={<Profile/>} />
-             <Route path="/addtour" element={<AddTourForm/>} />
-      {/*  Admin*/}
-        <Route path="/admin/*" element={<AdminRouter />} />
-        <Route path="/admin/tours/edit/:id" element={<EditTour />} />
+           <Route path="/addtour" element={<PrivateRoute roles={['ROLE_ADMIN']}><AddTourForm /></PrivateRoute>} />
+          
+          {/*  Admin */}
+          <Route path="/admin/*" element={<PrivateRoute roles={['ROLE_ADMIN']}><AdminRouter /></PrivateRoute>} />
+          <Route path="/admin/tours/edit/:id" element={<PrivateRoute roles={['ROLE_ADMIN']}><EditTour /></PrivateRoute>} />
       </Routes>
     </Router>
          <ChatWidget  />
+         </Provider>
    </div>
   );
 }
