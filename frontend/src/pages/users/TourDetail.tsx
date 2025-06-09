@@ -11,11 +11,16 @@ import Header from '../../components/HeaderUer';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
+import {  FaUserAlt } from 'react-icons/fa';
+
 interface ScheduleItem {
   dayNumber: number;
   description: string;
 }
-
+interface User {
+  fullName: string;
+  email: string;
+}
 interface DepartureSchedule {
   departureDate: string;
   price: string;
@@ -37,37 +42,60 @@ interface TourDetailType {
   availabilityStatus?: string | null;
   startDate?: string | null;
   endDate?: string | null;
-  // Thêm các trường khác nếu cần
+  departure?: string;  // Optional property, if it exists
+  destination: string; // Add destination here
+  tourCode: string;    // Add tourCode here
 }
+
 interface JwtPayload {
   fullName?: string;
   sub?: string;  // thường là username/email trong sub
   roles?: string[];
   id?: string;
 }
-
+interface Comment {
+  id: string;
+  comment: string;
+  rating: number;
+  user: User;
+}
 const TourDetail: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const [tour, setTour] = useState<TourDetailType | null>(null);
   const [loading, setLoading] = useState(true);
-
   const [numGuests, setNumGuests] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
+  const [comment, setComment] = useState<string>(''); // State to hold the comment
 
-  // Get token and user info from localStorage
+  const [comments, setComments] = useState<Comment[]>([]); // State to hold existing comments
+
+
   const token = localStorage.getItem('token');
   const isLoggedIn = token != null;
 
-
   useEffect(() => {
-    if (!id) return;
-    import('axios').then(({ default: axios }) => {
+    if (id) {
       axios.get<TourDetailType>(`http://localhost:8080/api/tours/${id}`)
-        .then(res => setTour(res.data))
-        .catch(err => console.error('Lỗi lấy chi tiết tour:', err))
+        .then(res => {
+          setTour(res.data);
+        })
+        .catch(err => console.error('Error fetching tour:', err))
         .finally(() => setLoading(false));
-    });
-  }, [id]);
+    }
+
+    // Get user ID from the token and update the state
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = parseJwt(token);
+      const userIdFromToken = decoded?.id ?? null; // Ensure it falls back to null if no user ID is found
+  
+
+      console.log("User ID from Token:", userIdFromToken); // Log the userId here to confirm it's set correctly
+    }
+
+  }, [id]); // Ensure to run this effect only once or when `id` changes
+
+
   function parseJwt(token: string): JwtPayload | null {
     try {
       const base64Url = token.split('.')[1];
@@ -83,6 +111,24 @@ const TourDetail: React.FC = () => {
       return null;
     }
   }
+  useEffect(() => {
+  if (id) {
+    // Fetch tour details
+    axios.get<TourDetailType>(`http://localhost:8080/api/tours/${id}`)
+      .then(res => {
+        setTour(res.data);
+      })
+      .catch(err => console.error('Error fetching tour:', err))
+      .finally(() => setLoading(false));
+
+    // Fetch comments for the tour
+    axios.get<Comment[]>(`http://localhost:8080/api/tours/${id}/comments`)
+      .then(res => {
+        setComments(res.data);  // Store comments in state
+      })
+      .catch(err => console.error('Error fetching comments:', err));
+  }
+}, [id]);  // Fetch when tourId changes
 const handleBookTour = async () => {
   if (!isLoggedIn) {
     setError('Vui lòng đăng nhập để đặt tour!');
@@ -99,45 +145,124 @@ const handleBookTour = async () => {
     return;
   }
 
-  // Đảm bảo numGuests có giá trị hợp lệ
+  // Ensure numGuests has a valid value
   if (numGuests <= 0 || numGuests === null) {
     setError('Số lượng khách phải lớn hơn 0');
     toast.error('Số lượng khách phải lớn hơn 0');
     return;
   }
 
-  // Tính toán tổng giá tiền
-  const totalPrice = tour?.price * numGuests;
-  console.log('Total Price:', totalPrice);  // In tổng giá tiền ra console để kiểm tra
+  // Safely access tour price, with fallback to 0 if undefined
+  const totalPrice = (tour?.price ?? 0) * numGuests; // Use nullish coalescing to provide a default value
 
-  // Tạo dữ liệu giỏ hàng
+  if (totalPrice <= 0) {
+    setError('Giá tour không hợp lệ!');
+    toast.error('Giá tour không hợp lệ!');
+    return;
+  }
+
+  console.log('Total Price:', totalPrice);  // Log the total price for debugging
+
+  // Prepare cart data
   const cartData = {
-    user: { id: decoded.id },  // Lấy ID người dùng từ token
-    tour: { id: tour?.id },    // Lấy ID tour từ dữ liệu tour
-    numGuests,                 // Số lượng khách
-    totalPrice,                // Tổng giá tiền
+    user: { id: decoded.id },
+    tour: { id: tour?.id },
+    numberOfGuests: numGuests,
+    totalPrice,
   };
 
-  console.log('Cart Data:', cartData);  // In dữ liệu giỏ hàng ra console để kiểm tra
+  console.log('Cart Data:', cartData);  
 
   try {
-    // Gửi yêu cầu POST đến API để đặt tour
+    // Make a POST request to the API for booking the tour
     const response = await axios.post('http://localhost:8080/api/carts', cartData, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
 
-    console.log('Response from API:', response);  // In phản hồi từ API để kiểm tra
+    console.log('Response from API:', response);  // Log API response for debugging
     toast.success('Đặt tour thành công!');
-  } catch (error) {
-    console.error('Lỗi khi đặt tour:', error.response?.data);
-    setError('Có lỗi xảy ra khi đặt tour!');
-    toast.error('Có lỗi xảy ra khi đặt tour!');
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+    
+      if (error.response) {
+        console.error('Error from server:', error.response.data);
+        toast.error(`Lỗi từ server: ${error.response.data.message || 'Có lỗi xảy ra khi đặt tour!'}`);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+        toast.error('Không nhận được phản hồi từ server. Vui lòng thử lại sau.');
+      }
+    } else {
+      
+      console.error('Error:', error);
+      toast.error('Có lỗi xảy ra khi đặt tour!');
+    }
   }
 };
 
+const handleCommentSubmit = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    toast.error('Vui lòng đăng nhập để bình luận!');
+    return;
+  }
 
+  const decoded = parseJwt(token);
+  const userIdFromToken = decoded?.id ?? null;
+  if (!userIdFromToken) {
+    toast.error('Lỗi xác thực người dùng!');
+    return;
+  }
+
+  if (!id || !comment.trim()) {
+    toast.error('Vui lòng nhập đầy đủ bình luận và đánh giá!');
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      `http://localhost:8080/api/tours/${id}/comments`,  // id refers to the tourId
+      {
+        comment: comment.trim(),
+        userId: userIdFromToken,
+        tourId: id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Send the token as authorization header
+        },
+      }
+    );
+
+
+    setComment('');
+
+    
+    setComments([...comments, response.data]);
+
+    toast.success('Bình luận thành công!');
+  } catch (error: unknown) {
+ 
+    if (axios.isAxiosError(error)) {
+   
+      if (error.response) {
+        console.error('Error from server:', error.response.data);
+        toast.error(`Lỗi từ server: ${error.response.data.message || 'Có lỗi xảy ra khi bình luận!'}`);
+      } else if (error.request) {
+       
+        console.error('No response received:', error.request);
+        toast.error('Không nhận được phản hồi từ server. Vui lòng thử lại sau.');
+      }
+    } else {
+    
+      console.error('Error:', error);
+      toast.error('Có lỗi xảy ra khi bình luận!');
+    }
+  }
+};
+
+ 
   if (loading) return <div>Đang tải dữ liệu tour...</div>;
   if (!tour) return <div>Không tìm thấy tour.</div>;
 
@@ -288,6 +413,58 @@ const handleBookTour = async () => {
         </Row>
 
         {/* Có thể thêm phần Tours liên quan nếu muốn */}
+   <Row className="mb-4">
+          <Col md={8}>
+            <Card className="p-3 shadow-sm">
+              <h4>Bình luận và đánh giá</h4>
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>Bình luận</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+ 
+                </Form.Group>
+                <Button variant="primary" onClick={handleCommentSubmit}>
+                  Gửi Bình luận
+                </Button>
+              </Form>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Display Comments */}
+   <Row className="mb-4">
+  <Col md={8}>
+    <Card className="p-3 shadow-sm">
+      <h4>Danh sách bình luận</h4>
+      <div style={{ maxHeight: '150px', overflowY: 'auto' }}> {/* Set a max height and enable scrolling */}
+        {comments.length > 0 ? (
+          <ul className="list-unstyled">
+            {comments.map((comment) => (
+              <li key={comment.id} className="d-flex align-items-center mb-3">
+                {/* User Icon and Email */}
+                <FaUserAlt className="me-2" size={20} /> {/* User icon */}
+                <strong>{comment.user.fullName}</strong>
+                <span className="ms-2 text-muted">({comment.user.email})</span>
+
+                {/* Comment Text */}
+                <p className="ms-3 mt-3">{comment.comment}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Chưa có bình luận nào.</p>
+        )}
+      </div>
+    </Card>
+  </Col>
+</Row>
 
       </Container>
 
