@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import '../../assets/css/ticket.css';
 
-import Footer from '../../components/Footer';
 import TicketCard from '../../components/TicketCard';
 
 // Sample data for entertainment tickets

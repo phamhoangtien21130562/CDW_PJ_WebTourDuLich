@@ -16,15 +16,16 @@ import AdminRouter from "./router/AdminRouter";
 import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import ForgotPassword from './form/ForgotPassword';
-import RegisterForm from './form/Register';
-import LoginForm from './form/LoginForm';
+
 import ChatWidget from './components/ChatWidget';
 import AddTourForm from './components/admin/AddTourForm';
 import EditTour from './components/admin/EditTour';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import PrivateRoute from './PrivateRoute';
+import LoginForm from './Form/LoginForm';
+import RegisterForm from './Form/Register';
+import ForgotPassword from './Form/ForgotPassword';
 
 
 
