@@ -27,7 +27,37 @@ const Dashboard = () => {
 
     const [orders, setOrders] = useState<Order[]>([]);
 
+    useEffect(() => {
+        // Lấy thống kê tổng
+        axios.get("http://localhost:8080/api/dashboard/stats")
+            .then(res => setStatsData(res.data))
+            .catch(err => console.error("Lỗi thống kê tổng:", err));
 
+        // Lấy đơn hàng và xử lý thống kê theo tháng
+        axios.get("http://localhost:8080/api/orders")
+            .then(res => {
+                const fetchedOrders: Order[] = res.data;
+                setOrders(fetchedOrders);
+
+                const counts = Array(12).fill(0); // 12 tháng
+
+                fetchedOrders.forEach(order => {
+                    const date = dayjs(order.orderDate);
+                    if (date.year() === 2025) {
+                        const month = date.month(); // 0-based: 0 = Jan
+                        counts[month]++;
+                    }
+                });
+
+                const labels = [
+                    "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                    "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+                ];
+
+                setMonthlyOrderStats({ labels, data: counts });
+            })
+            .catch(err => console.error("Lỗi lấy danh sách đơn hàng:", err));
+    }, []);
 
     const recentOrders = [...orders]
         .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
