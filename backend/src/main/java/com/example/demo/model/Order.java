@@ -98,5 +98,5 @@ public class Order {
 				+ ", customerEmail=" + customerEmail + ", totalAmount=" + totalAmount + ", orderDate=" + orderDate
 				+ ", status=" + status + "]";
 	}
-    
+
 }
