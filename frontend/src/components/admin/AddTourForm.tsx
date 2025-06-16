@@ -15,15 +15,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
+
 interface TourValues {
-  title: string; // Tiêu đề tour
+  title: string;
   tourCode: string;
   departure: string;
   destination: string;
   duration: string;
   transport: string;
   price: string;
-  startDate: string;  // thêm ngày khởi hành
+  startDate: string;
   endDate: string;
   deleted: boolean;
   availabilityStatus: string;
@@ -32,7 +33,7 @@ interface TourValues {
   departureSchedules: { departureDate: string; price: string; status: string }[];
   notes: string[];
   subImageUrls: string[];
-  categoryId: string; // Thêm trường categoryId cho danh mục
+  categoryId: string;
 }
 
 const AddTourForm: React.FC = () => {
@@ -98,7 +99,7 @@ const AddTourForm: React.FC = () => {
     notes: Yup.array()
       .of(Yup.string().required("Thông tin lưu ý không được bỏ trống"))
       .min(1, "Phải có ít nhất 1 lưu ý"),
-    categoryId: Yup.string().required("Danh mục là bắt buộc"),
+    // categoryId: Yup.string().required("Danh mục là bắt buộc"),
   });
 
   const calculateDuration = (startDate: string, endDate: string) => {
@@ -136,7 +137,8 @@ const AddTourForm: React.FC = () => {
       reader.onerror = (error) => reject(error);
     });
 
-  const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const  handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setMainImageFile(file);

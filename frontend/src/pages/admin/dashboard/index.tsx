@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Table, Badge } from "react-bootstrap";
 import { Cart, People, Globe, CurrencyDollar } from "react-bootstrap-icons";
-import { Line } from "react-chartjs-2";
 import axios from "axios";
+import dayjs from "dayjs";
 
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-} from "chart.js";
-
-// Đăng ký các thành phần của Chart.js
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+interface Order {
+    id: string;
+    customerName: string;
+    totalAmount: number;
+    orderDate: string;
+    status: string;
+}
 
 const Dashboard = () => {
     const [statsData, setStatsData] = useState({
@@ -26,74 +20,42 @@ const Dashboard = () => {
         totalRevenue: 0,
     });
 
-    useEffect(() => {
-        axios.get("http://localhost:8080/api/dashboard/stats")
-            .then(res => {
-                const data = res.data;
-                setStatsData({
-                    totalUsers: data.totalUsers,
-                    totalTours: data.totalTours,
-                    totalOrders: data.totalOrders,
-                    totalRevenue: data.totalRevenue,
-                });
-            })
-            .catch(err => {
-                console.error("Lỗi lấy thống kê dashboard:", err);
-            });
-    }, []);
+    const [monthlyOrderStats, setMonthlyOrderStats] = useState({
+        labels: [] as string[],
+        data: [] as number[],
+    });
 
-    // Dữ liệu thống kê tổng
+    const [orders, setOrders] = useState<Order[]>([]);
+
+
+
+    const recentOrders = [...orders]
+        .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
+        .slice(0, 5);
+
     const stats = [
         { title: "Tổng Đơn hàng", value: statsData.totalOrders, icon: <Cart size={32} />, color: "primary" },
         { title: "Tổng Người dùng", value: statsData.totalUsers, icon: <People size={32} />, color: "success" },
         { title: "Tổng Tour", value: statsData.totalTours, icon: <Globe size={32} />, color: "warning" },
-        { title: "Doanh thu", value: `$${Number(statsData.totalRevenue).toLocaleString()}`, icon: <CurrencyDollar size={32} />, color: "danger" },
+        { title: "Doanh thu", value: `${Number(statsData.totalRevenue).toLocaleString()}₫`, icon: <CurrencyDollar size={32} />, color: "danger" },
     ];
 
-    // Dữ liệu biểu đồ đơn hàng theo tháng (giả lập)
-    const orderData = {
-        labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6"],
-        datasets: [
-            {
-                label: "Số đơn hàng",
-                data: [100, 150, 300, 250, 400, 600],
-                borderColor: "#007bff",
-                backgroundColor: "rgba(0, 123, 255, 0.5)",
-            },
-        ],
-    };
-
-    // Danh sách đơn hàng gần đây (giả lập)
-    const recentOrders = [
-        { id: "ORD001", customer: "Nguyễn Văn A", amount: "$500", status: "Đã xử lý" },
-        { id: "ORD002", customer: "Trần Thị B", amount: "$350", status: "Chờ xử lý" },
-        { id: "ORD003", customer: "Lê Văn C", amount: "$700", status: "Đã hủy" },
-        { id: "ORD004", customer: "Phạm Văn D", amount: "$450", status: "Đã xử lý" },
-    ];
-
-    // Badge màu trạng thái đơn hàng
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case "Đã xử lý":
-                return <Badge bg="success">✅ {status}</Badge>;
-            case "Chờ xử lý":
-                return <Badge bg="warning">⏳ {status}</Badge>;
-            case "Đã hủy":
-                return <Badge bg="danger">❌ {status}</Badge>;
+            case "COMPLETED":
+                return <Badge bg="success">✅ Đã xử lý</Badge>;
+            case "PENDING":
+                return <Badge bg="warning">⏳ Chờ xử lý</Badge>;
+            case "CANCELLED":
+                return <Badge bg="danger">❌ Đã hủy</Badge>;
             default:
                 return <Badge bg="secondary">{status}</Badge>;
         }
     };
-    const formatCurrency = (amount: number) =>
-        amount.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND"
-        });
-
 
     return (
         <Container className="mt-4">
-            {/* Hàng thống kê */}
+            {/* Thống kê tổng */}
             <Row className="mb-4">
                 {stats.map((stat, index) => (
                     <Col key={index} md={3}>
@@ -108,17 +70,36 @@ const Dashboard = () => {
                 ))}
             </Row>
 
-            {/* Biểu đồ & Đơn hàng gần đây */}
-            <Row>
-                <Col md={8}>
+            {/* Bảng thống kê đơn hàng theo tháng */}
+            <Row className="mb-4">
+                <Col>
                     <Card className="shadow-sm">
-                        <Card.Header className="bg-primary text-white">📈 Thống kê đơn hàng</Card.Header>
+                        <Card.Header className="bg-primary text-white">📊 Thống kê đơn hàng theo tháng</Card.Header>
                         <Card.Body>
-                            <Line data={orderData} />
+                            <Table striped bordered hover size="sm">
+                                <thead>
+                                <tr>
+                                    <th>Tháng</th>
+                                    <th>Số đơn hàng</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {monthlyOrderStats.labels.map((label, index) => (
+                                    <tr key={index}>
+                                        <td>{label}</td>
+                                        <td>{monthlyOrderStats.data[index]}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </Table>
                         </Card.Body>
                     </Card>
                 </Col>
-                <Col md={4}>
+            </Row>
+
+            {/* Bảng đơn hàng gần đây */}
+            <Row>
+                <Col>
                     <Card className="shadow-sm">
                         <Card.Header className="bg-secondary text-white">📋 Đơn hàng gần đây</Card.Header>
                         <Card.Body>
@@ -135,8 +116,8 @@ const Dashboard = () => {
                                 {recentOrders.map((order, index) => (
                                     <tr key={index}>
                                         <td>{order.id}</td>
-                                        <td>{order.customer}</td>
-                                        <td>{order.amount}</td>
+                                        <td>{order.customerName}</td>
+                                        <td>{Number(order.totalAmount).toLocaleString()}₫</td>
                                         <td>{getStatusBadge(order.status)}</td>
                                     </tr>
                                 ))}
