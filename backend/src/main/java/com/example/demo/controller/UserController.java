@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
 
-import com.example.demo.config.JwtUtils;
+import com.example.demo.config.JwtUtil;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.reposity.RoleRepository;
@@ -55,7 +55,7 @@ public class UserController {
 
         userInput.setRoles(Collections.singleton(roleUser.get()));
 
-      
+
         userRepository.save(userInput);
 
         return ResponseEntity.ok("✅ Đăng ký người dùng thành công.");
@@ -113,8 +113,8 @@ public class UserController {
                                      .stream()
                                      .map(Role::getName)
                                      .toList();
-        
-        String token = JwtUtils.generateToken(user.getEmail(), roleNames, user.getId());
+//tạo JWT token chứa thông tin người dùng, từ đó giúp hệ thống xác thực các request về sau một cách an toàn, không cần session.
+        String token = JwtUtil.generateToken(user.getEmail(), roleNames, user.getId());
 
         Map<String, Object> response = new HashMap<>();
         response.put("id", user.getId());
@@ -165,13 +165,13 @@ public class UserController {
 
         User user = userOpt.get();
 
-     
+
         String newPassword = generateRandomPassword(6);
 
-      
+
         String encodedPassword = passwordEncoder.encode(newPassword);
 
-       
+
         user.setPassword(encodedPassword);
         userRepository.save(user);
 
