@@ -5,6 +5,8 @@ import { PencilSquare, Trash } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
+
+
 interface Tour {
   id: string;
   title: string;
@@ -104,8 +106,8 @@ const handleDelete = async (id: string) => {
                 <th>#</th>
                 <th>Tên travel</th>
                 <th>Giá</th>
-                <th>Ngày khởi hành</th>
-                <th>Ngày kết thúc</th>
+                <th>Ngày KH</th>
+                <th>Ngày KT</th>
                 <th>Trạng thái</th>
                 <th className="text-center">Hành động</th>
               </tr>
