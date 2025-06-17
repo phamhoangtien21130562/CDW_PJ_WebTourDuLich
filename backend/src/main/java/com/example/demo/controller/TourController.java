@@ -2,6 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Tour;
 import com.example.demo.reposity.TourRepository;
+import com.example.demo.service.TourService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +22,8 @@ import java.util.List;
 public class TourController {
 
     private final TourRepository tourRepository;
-
+    @Autowired
+    private TourService tourService;
     @Value("${upload.path}")
     private String pathUploadImage;
 
@@ -31,6 +35,12 @@ public class TourController {
         return tourRepository.findById(id)
             .map(tour -> ResponseEntity.ok(tour))
             .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/search-tours")
+    public List<Tour> searchTours(@RequestParam(required = false) String title,
+                                  @RequestParam(required = false) String departure,
+                                  @RequestParam(required = false) String startDate) {
+        return tourService.searchTours(title, departure, startDate);
     }
     
     @DeleteMapping("/{id}")
