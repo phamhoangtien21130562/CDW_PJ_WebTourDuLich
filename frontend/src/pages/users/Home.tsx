@@ -6,6 +6,8 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Tour from '../../components/Tour';
 import EntertainmentTickets from './EntertainmentTickets';
+import IntroPage from '../../components/IntroPage';
+import BlogGridPage from '../../components/BlogGridPage';
 
 
 // Định nghĩa interface cho Province
@@ -22,9 +24,11 @@ function Index() {
   const [activeTab, setActiveTab] = useState<Tab>('tours');
   // State cho danh sách provinces
   const [provinces, setProvinces] = useState<Province[]>([]);
-  // State cho tỉnh được chọn
-  const [selectedProvince, setSelectedProvince] = useState<string>('');
+
   const [guestSelection, setGuestSelection] = useState<string>('2 người lớn, 0 trẻ em'); // State để lưu giá trị được chọn
+const [title, setTitle] = useState('');
+  const [departure, setDeparture] = useState('');
+  const [startDate, setStartDate] = useState('');
 
   const handleGuestChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setGuestSelection(e.target.value);
@@ -40,19 +44,18 @@ function Index() {
     've-vui-choi': 'https://cdn1.ivivu.com/images/2024/11/05/12/=utf-8BQmFubmVyIFRvcCBWw6kgVnVpIGNoxqFpNCAoMTkyMHg1MTMpICgxKS5wbmdfMC5wbmc==_.webp',
   };
 
-  // Cập nhật activeTab dựa trên URL hash khi component mount
-  useEffect(() => {
-    const hash = window.location.hash.replace('#', '') as Tab;
-    if (hash && (['khach-san', 'tours', 've-vui-choi'] as Tab[]).includes(hash)) {
-      setActiveTab(hash);
-    }
-  }, []);
+useEffect(() => {
+  const hash = window.location.hash.replace('#', '') as Tab;
+  if (hash && (['khach-san', 'tours', 've-vui-choi', 'gioi-thieu','blog'] as Tab[]).includes(hash)) {
+    setActiveTab(hash);
+  }
+}, []);
 
   // Lắng nghe thay đổi hash
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as Tab;
-      if (hash && (['khach-san', 'tours', 've-vui-choi'] as Tab[]).includes(hash)) {
+     if (hash && (['khach-san', 'tours', 've-vui-choi', 'gioi-thieu' ,'blog'] as Tab[]).includes(hash)) {
         setActiveTab(hash);
       }
     };
@@ -160,22 +163,29 @@ function Index() {
               ) : activeTab === 'tours' ? (
                 <Form className="search-form mt-4">
                   <Row className="g-2 align-items-center">
-                    <Col xs={12} md={4}>
-                      <FormControl placeholder="Bạn muốn đi đâu?" className="rounded-0" />
-                    </Col>
-                    <Col xs={12} md={3}>
-                      <FormControl
-                        type="date"
-                        placeholder="Ngày khởi hành"
-                        className="rounded-0"
-                      />
-                    </Col>
+                   <Col xs={12} md={4}>
+                  <FormControl
+                    placeholder="Bạn muốn đi đâu?"
+                    className="rounded-0"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                </Col>
+                  <Col xs={12} md={3}>
+                  <FormControl
+                    type="date"
+                    placeholder="Ngày khởi hành"
+                    className="rounded-0"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </Col>
                     <Col xs={12} md={5}>
-                      <Form.Select
-                        value={selectedProvince}
-                        onChange={(e) => setSelectedProvince(e.target.value)}
-                        className="rounded-0 start"
-                      >
+                           <Form.Select
+                    value={departure}
+                    onChange={(e) => setDeparture(e.target.value)}
+                    className="rounded-0 start"
+                  >
                         <option value="">Khởi hành từ</option>
                         {provinces.map((province) => (
                           <option key={province.id} value={province.name}>
@@ -184,11 +194,7 @@ function Index() {
                         ))}
                       </Form.Select>
                     </Col>
-                    <Col xs={12} md={2}>
-                      <Button variant="warning" className="w-100 rounded-0">
-                        Tìm
-                      </Button>
-                    </Col>
+                 
                   </Row>
                 </Form>
               ) : activeTab === 've-vui-choi' ? (
@@ -231,17 +237,25 @@ function Index() {
         </Row>
       </Container>
 
-      {/* Conditionally Render Content */}
-      {activeTab === 'khach-san' ? (
+       {/* Conditionally Render Content */}
+     {activeTab === 'khach-san' ? (
         <div>
           <Hotels />
         </div>
       ) : activeTab === 'tours' ? (
         <div>
-          <Tour />
+   <Tour title={title} departure={departure} startDate={startDate} />
         </div>
       ) : activeTab === 've-vui-choi' ? (
     <EntertainmentTickets/>
+      ) : activeTab === 'gioi-thieu' ? (
+        <div>
+<IntroPage/>
+        </div>
+      )   : activeTab === 'blog' ? (
+        <div>
+<BlogGridPage/>
+        </div>
       ) : null}
 
       <Footer />

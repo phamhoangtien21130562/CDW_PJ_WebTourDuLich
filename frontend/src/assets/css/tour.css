@@ -2,6 +2,22 @@
 .mt-6 {
     margin-top: 4rem !important;
 }
+.no-tours-message {
+  background-color: #f8d7da; /* Màu nền nhẹ, giống như màu cảnh báo */
+  color: #721c24; /* Màu chữ đỏ đậm */
+  border: 1px solid #f5c6cb; /* Viền màu đỏ nhạt */
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 20px 0;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-tours-message p {
+  margin: 0;
+}
 /* Tour Card Styling */
 .tour-card {
     border: 1px solid #e0e0e0;

@@ -14,23 +14,40 @@ interface Tour {
   icons?: string[];
 }
 
-const Tour: React.FC = () => {
+
+const Tour: React.FC<{title: string, departure: string, startDate: string}> = ({title, departure, startDate}) => {
   const [holidayTours, setHolidayTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    import('axios').then(({ default: axios }) => {
-      axios.get<Tour[]>('http://localhost:8080/api/tours/category/68404fb5a0e03226d2f0ceed')
-        .then(res => {
+  const fetchTours = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:8080/api/tours/search-tours?title=${title}&departure=${departure}&startDate=${startDate}`);
+      const data = await response.json();
+      setHolidayTours(data);
+    } catch (error) {
+      console.error('Error fetching tours:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-          setHolidayTours(res.data);
-        })
-        .catch(err => {
-          console.error('Lỗi lấy dữ liệu holidayTours:', err);
-        })
-        .finally(() => setLoading(false));
-    });
-  }, []);
+  useEffect(() => {
+    fetchTours();
+  }, [title, departure, startDate]);
+  // useEffect(() => {
+  //   import('axios').then(({ default: axios }) => {
+  //     axios.get<Tour[]>('http://localhost:8080/api/tours/category/68404fb5a0e03226d2f0ceed')
+  //       .then(res => {
+
+  //         setHolidayTours(res.data);
+  //       })
+  //       .catch(err => {
+  //         console.error('Lỗi lấy dữ liệu holidayTours:', err);
+  //       })
+  //       .finally(() => setLoading(false));
+  //   });
+  // }, []);
 
   if (loading) return <div>Đang tải dữ liệu tour...</div>;
 
@@ -42,7 +59,9 @@ const Tour: React.FC = () => {
         <h5 className="text-muted">Chốt Lịch Đi, Khởi Hành Lễ Về Lễ</h5>
 
         {holidayTours.length === 0 ? (
-          <p>Không có tour nào phù hợp.</p>
+      <div className="no-tours-message">
+    <p>Không có tour nào phù hợp.</p>
+  </div>
         ) : (
           <Row>
             {holidayTours.map(tour => (
