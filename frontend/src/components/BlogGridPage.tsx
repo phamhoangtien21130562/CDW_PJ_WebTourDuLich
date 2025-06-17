@@ -13,7 +13,7 @@ const BlogGridPage: React.FC = () => {
   const [items, setItems] = useState<RssItem[]>([]);
 
   useEffect(() => {
-    axios.get<RssItem[]>("http://localhost:8080/api/rss/khoahoc")
+    axios.get<RssItem[]>("http://localhost:8080/api/rss/dulich")
       .then((res) => setItems(res.data))
       .catch((err) => console.error("Lỗi tải RSS:", err));
   }, []);

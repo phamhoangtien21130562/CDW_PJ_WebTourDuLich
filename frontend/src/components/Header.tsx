@@ -138,8 +138,8 @@ const handleTabClick = (tab: Tab) => {
                 Tours
               </Nav.Link>
              
-              <Nav.Link href="#blog"  onClick={() => handleTabClick('blog')}>Blog</Nav.Link>
-              <Nav.Link href="#gioi-thieu"  onClick={() => handleTabClick('gioi-thieu')}
+              <Nav.Link href="/#blog"  onClick={() => handleTabClick('blog')}>Blog</Nav.Link>
+              <Nav.Link href="/#gioi-thieu"  onClick={() => handleTabClick('gioi-thieu')}
                 active={activeTab === 'gioi-thieu'}>Giới thiệu</Nav.Link>
             </Nav>
             <Nav>

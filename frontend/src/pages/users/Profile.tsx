@@ -19,7 +19,7 @@ interface User {
 
   
   // Định nghĩa các giá trị hợp lệ cho activeTab
-  type Tab = 'tours' | 'khach-san' | 've-vui-choi';
+type Tab = 'tours' | 'khach-san' | 've-vui-choi' |'gioi-thieu' | 'blog';
 const Profile: React.FC = () => {
     const [activeTab1, setActiveTab1] = useState<Tab>('tours');
   const [isSidebarVisible, setIsSidebarVisible] = useState(true); // Trạng thái ẩn/hiện thanh bên
@@ -112,10 +112,11 @@ useEffect(() => {
 
 
   // Hàm thay đổi tab
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setIsEditing(false); // Reset chế độ chỉnh sửa khi chuyển tab
-  };
+const handleTabChange = (tab: string) => {
+  setActiveTab(tab);
+  setIsEditing(false); // Reset chế độ chỉnh sửa khi chuyển tab
+  window.location.hash = tab; // Update the URL hash
+};
  useEffect(() => {
   // Thử lấy token từ sessionStorage hoặc localStorage
   const token =  localStorage.getItem('token');
@@ -162,25 +163,26 @@ useEffect(() => {
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
-  // Cập nhật activeTab dựa trên URL hash khi component mount
-  useEffect(() => {
-    const hash = window.location.hash.replace('#', '') as Tab;
-    if (hash && (['khach-san', 'tours', 've-vui-choi'] as Tab[]).includes(hash)) {
-      setActiveTab(hash);
-    }
-  }, []);
+useEffect(() => {
+  const hash = window.location.hash.replace('#', '') as Tab;
+  if (hash && ['khach-san', 'tours', 've-vui-choi', 'gioi-thieu', 'blog'].includes(hash)) {
+    setActiveTab(hash);
+  }
+}, []);
+
 
   // Lắng nghe thay đổi hash
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '') as Tab;
-      if (hash && (['khach-san', 'tours', 've-vui-choi'] as Tab[]).includes(hash)) {
-        setActiveTab(hash);
-      }
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+useEffect(() => {
+  const handleHashChange = () => {
+    const hash = window.location.hash.replace('#', '') as Tab;
+    if (hash && ['khach-san', 'tours', 've-vui-choi', 'gioi-thieu', 'blog'].includes(hash)) {
+      setActiveTab(hash);
+    }
+  };
+  window.addEventListener('hashchange', handleHashChange);
+  return () => window.removeEventListener('hashchange', handleHashChange);
+}, []);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -253,20 +255,8 @@ useEffect(() => {
               >
                 <FaShoppingCart className="me-2" /> Đơn hàng của tui
               </ListGroup.Item>
-              <ListGroup.Item
-                action
-                onClick={() => handleTabChange('vouchers')}
-                active={activeTab === 'vouchers'}
-              >
-                <FaTicketAlt className="me-2" /> Voucher của tui
-              </ListGroup.Item>
-              <ListGroup.Item
-                action
-                onClick={() => handleTabChange('comment')}
-                active={activeTab === 'comment'}
-              >
-                <FaComment className="me-2" /> Bình luận của tôi
-              </ListGroup.Item>
+           
+              
             </ListGroup>
           </Col>
         )}
@@ -415,12 +405,11 @@ useEffect(() => {
           )}
 
           {/* Tab Voucher */}
-          {activeTab === 'vouchers' && (
-           <MyVouchers/>
-          )}
+       
            {activeTab === 'comment' && (
            <MyComments/>
           )}
+          
         </Col>
       </Row>
     </Container>
