@@ -10,7 +10,7 @@ interface Province {
 }
 
 // Định nghĩa type cho activeTab
-type Tab = 'tours' | 'khach-san' | 've-vui-choi';
+type Tab = 'tours' | 'khach-san' | 've-vui-choi' |'gioi-thieu' | 'blog';
 
 // Định nghĩa props cho Header
 interface HeaderProps {
@@ -99,10 +99,10 @@ console.log('userName:', userName);
     setUserName('');
     window.location.href = '/';
   };
-  const handleTabClick = (tab: Tab) => {
-    setActiveTab(tab);
-    window.location.hash = tab; // Cập nhật hash trong URL
-  };
+const handleTabClick = (tab: Tab) => {
+  setActiveTab(tab);
+  window.location.hash = tab; // Cập nhật hash trong URL
+};
 
   return (
     <div className="App">
@@ -129,13 +129,7 @@ console.log('userName:', userName);
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link
-                href="/#khach-san"
-                onClick={() => handleTabClick('khach-san')}
-                active={activeTab === 'khach-san'}
-              >
-                Khách sạn
-              </Nav.Link>
+          
               <Nav.Link
                 href="/#tours"
                 onClick={() => handleTabClick('tours')}
@@ -143,15 +137,10 @@ console.log('userName:', userName);
               >
                 Tours
               </Nav.Link>
-              <Nav.Link
-                href="/#ve-vui-choi"
-                onClick={() => handleTabClick('ve-vui-choi')}
-                active={activeTab === 've-vui-choi'}
-              >
-                Vé vui chơi
-              </Nav.Link>
-              <Nav.Link href="#blog">Blog</Nav.Link>
-              <Nav.Link href="#gioi-thieu">Giới thiệu</Nav.Link>
+             
+              <Nav.Link href="#blog"  onClick={() => handleTabClick('blog')}>Blog</Nav.Link>
+              <Nav.Link href="#gioi-thieu"  onClick={() => handleTabClick('gioi-thieu')}
+                active={activeTab === 'gioi-thieu'}>Giới thiệu</Nav.Link>
             </Nav>
             <Nav>
               <Nav.Link href="#contact" className="text-white">
